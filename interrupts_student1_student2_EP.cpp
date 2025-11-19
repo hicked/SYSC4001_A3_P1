@@ -2,18 +2,18 @@
  * @file interrupts.cpp
  * @author Sasisekhar Govind
  * @brief template main.cpp file for Assignment 3 Part 1 of SYSC4001
- * 
+ *
  */
 
 #include<interrupts_student1_student2.hpp>
 
 void FCFS(std::vector<PCB> &ready_queue) {
-    std::sort( 
+    std::sort(
                 ready_queue.begin(),
                 ready_queue.end(),
                 []( const PCB &first, const PCB &second ){
-                    return (first.arrival_time > second.arrival_time); 
-                } 
+                    return (first.arrival_time > second.arrival_time);
+                }
             );
 }
 
@@ -71,7 +71,7 @@ std::tuple<std::string /* add std::string for bonus mark */ > run_simulation(std
         /////////////////////////////////////////////////////////////////
 
     }
-    
+
     //Close the output table
     execution_status += print_exec_footer();
 

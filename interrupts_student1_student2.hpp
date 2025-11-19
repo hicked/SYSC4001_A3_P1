@@ -2,7 +2,7 @@
  * @file interrupts.hpp
  * @author Sasisekhar Govind
  * @brief template main.cpp file for Assignment 3 Part 1 of SYSC4001
- * 
+ *
  */
 
 #ifndef INTERRUPTS_HPP_
@@ -65,6 +65,8 @@ struct PCB{
     enum states     state;
     unsigned int    io_freq;
     unsigned int    io_duration;
+
+    unsigned int    priority;
 };
 
 //------------------------------------HELPER FUNCTIONS FOR THE SIMULATOR------------------------------
@@ -88,10 +90,10 @@ std::string print_PCB(std::vector<PCB> _PCB) {
     const int tableWidth = 83;
 
     std::stringstream buffer;
-    
+
     // Print top border
     buffer << "+" << std::setfill('-') << std::setw(tableWidth) << "+" << std::endl;
-    
+
     // Print headers
     buffer << "|"
               << std::setfill(' ') << std::setw(4) << "PID"
@@ -108,10 +110,10 @@ std::string print_PCB(std::vector<PCB> _PCB) {
               << std::setw(2) << "|"
               << std::setfill(' ') << std::setw(11) << "State"
               << std::setw(2) << "|" << std::endl;
-    
+
     // Print separator
     buffer << "+" << std::setfill('-') << std::setw(tableWidth) << "+" << std::endl;
-    
+
     // Print each PCB entry
     for (const auto& program : _PCB) {
         buffer << "|"
@@ -130,7 +132,7 @@ std::string print_PCB(std::vector<PCB> _PCB) {
                   << std::setw(11) << program.state
                   << std::setw(2) << "|" << std::endl;
     }
-    
+
     // Print bottom border
     buffer << "+" << std::setfill('-') << std::setw(tableWidth) << "+" << std::endl;
 
@@ -149,10 +151,10 @@ std::string print_exec_header() {
     const int tableWidth = 49;
 
     std::stringstream buffer;
-    
+
     // Print top border
     buffer << "+" << std::setfill('-') << std::setw(tableWidth) << "+" << std::endl;
-    
+
     // Print headers
     buffer  << "|"
             << std::setfill(' ') << std::setw(18) << "Time of Transition"
@@ -163,7 +165,7 @@ std::string print_exec_header() {
             << std::setw(2) << "|"
             << std::setfill(' ') << std::setw(10) << "New State"
             << std::setw(2) << "|" << std::endl;
-    
+
     // Print separator
     buffer << "+" << std::setfill('-') << std::setw(tableWidth) << "+" << std::endl;
 
@@ -266,6 +268,10 @@ PCB add_process(std::vector<std::string> tokens) {
     process.remaining_time = std::stoi(tokens[3]);
     process.io_freq = std::stoi(tokens[4]);
     process.io_duration = std::stoi(tokens[5]);
+
+    // added priority for some algorithms
+    process.priority = std::stoi(tokens[6]);
+
     process.start_time = -1;
     process.partition_number = -1;
     process.state = NOT_ASSIGNED;
