@@ -46,13 +46,12 @@ std::string parseMemoryEvents(unsigned int current_time,
     output += "\nPartition Usage:\n";
     output += "| Part | Size | PID | Used | Unused |\n";
     output += "|------|------|-----|------|--------|\n";
-    for (int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 6; i++) {
         const memory_partition &part = memory_paritions[i];
         int pid = part.occupied;
         unsigned int used = 0;
         if (pid != -1) {
-            // index-based search to avoid iterator/find_if usage
-            for (size_t j = 0; j < job_list.size(); ++j) {
+            for (size_t j = 0; j < job_list.size(); j++) {
                 if (job_list[j].PID == pid) {
                     used = job_list[j].size;
                     break;
