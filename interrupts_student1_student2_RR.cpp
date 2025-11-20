@@ -44,20 +44,32 @@ std::string parseMemoryEvents(unsigned int current_time,
     }
 
     output += "\nPartition Usage:\n";
-    output += "| Part | Size | PID | Used | Unused |\n";
-    output += "|------|------|-----|------|--------|\n";
+    output += "| Part | Size | PID | Used | Unused | State   |\n";
+    output += "|------|------|-----|------|--------|---------|\n";
     for (int i = 0; i < 6; i++) {
         const memory_partition &part = memory_paritions[i];
         int pid = part.occupied;
         unsigned int used = 0;
+        states proc_state = NOT_ASSIGNED;
+
         if (pid != -1) {
             for (size_t j = 0; j < job_list.size(); j++) {
                 if (job_list[j].PID == pid) {
                     used = job_list[j].size;
+                    proc_state = job_list[j].state;
                     break;
                 }
             }
         }
+
+        auto state_str =
+            (pid == -1) ? "-" :
+            (proc_state == NEW ? "NEW" :
+             proc_state == READY ? "READY" :
+             proc_state == RUNNING ? "RUNNING" :
+             proc_state == WAITING ? "WAITING" :
+             proc_state == TERMINATED ? "TERMINATED" : "N/A");
+
         unsigned int unused = (pid == -1) ? part.size : (part.size > used ? part.size - used : 0);
         output += "| " + std::to_string(part.partition_number) +
                "    |  " + std::to_string(part.size) +
@@ -65,7 +77,8 @@ std::string parseMemoryEvents(unsigned int current_time,
                (pid == -1 ? std::string("-1") : std::to_string(pid)) +
                (pid == -1 || pid > 9 ? "  | " : "   | ") +
                std::to_string(used) + (used < 10 ? "    | " : "   | ") +
-               std::to_string(unused) + (unused < 10 ? "      |\n" : "     |\n");
+               std::to_string(unused) + (unused < 10 ? "      | " : "     | ") +
+               state_str + " |\n";
     }
     return output;
 }
