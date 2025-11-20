@@ -140,19 +140,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             }
         }
 
-        // 3. If CPU is idle and has stuff in ready, start running next process
-        if (running.state == NOT_ASSIGNED && !ready_queue.empty()) {
-            running = ready_queue.front();
-            ready_queue.erase(ready_queue.begin());
-            running.start_time = current_time;
-            running.state = RUNNING;
-            sync_queue(job_list, running);
-
-            execution_status += print_exec_status(current_time, running.PID, READY, RUNNING);
-            memory_transitions.push_back({current_time, running.PID, READY, RUNNING});
-        }
-
-        // 4. Make sure CPU isn't idle before checking these things
+        // 3. Make sure CPU isn't idle before checking these things
         if (running.state == RUNNING) {
             unsigned int elapsed = current_time - running.start_time;
 
@@ -189,6 +177,19 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 idle_CPU(running);
             }
         }
+
+        // 4. If CPU is idle and has stuff in ready, start running next process
+        if (running.state == NOT_ASSIGNED && !ready_queue.empty()) {
+            running = ready_queue.front();
+            ready_queue.erase(ready_queue.begin());
+            running.start_time = current_time;
+            running.state = RUNNING;
+            sync_queue(job_list, running);
+
+            execution_status += print_exec_status(current_time, running.PID, READY, RUNNING);
+            memory_transitions.push_back({current_time, running.PID, READY, RUNNING});
+        }
+
         if(!memory_transitions.empty()) {
             memory_status += parseMemoryEvents(current_time, memory_transitions, job_list);
         }
