@@ -9,6 +9,50 @@
 
 #define QUANTUM         100
 
+// Generate memory state snapshot
+std::string get_memory_state(unsigned int current_time, int starting_pid) {
+    std::stringstream ss;
+
+    ss << "\n--- Memory State at Time " << current_time << " (Process " << starting_pid << " starting) ---\n";
+
+    // Calculate memory statistics
+    unsigned int total_memory = 100; // 40+25+15+10+8+2
+    unsigned int used_memory = 0;
+    unsigned int free_memory = 0;
+    unsigned int usable_free_memory = 0; // Largest free partitions that can actually be used
+
+    ss << "Partition States:\n";
+    ss << "  Partition | Size | Status\n";
+    ss << "  ----------|------|------------------\n";
+
+    for(int i = 0; i < 6; i++) {
+        ss << "      " << memory_paritions[i].partition_number << "     | "
+           << std::setw(4) << memory_paritions[i].size << " | ";
+
+        if(memory_paritions[i].occupied == -1) {
+            ss << "FREE\n";
+            free_memory += memory_paritions[i].size;
+            usable_free_memory += memory_paritions[i].size;
+        } else {
+            ss << "USED (PID " << memory_paritions[i].occupied << ")\n";
+            used_memory += memory_paritions[i].size;
+        }
+    }
+
+    // ss << "\nMemory Summary:\n";
+    // ss << "  a. Total memory used: " << used_memory << " / " << total_memory << " units\n";
+    // ss << "  b. Used partitions: " << (6 - std::count_if(memory_paritions, memory_paritions + 6,
+    //                                      [](const memory_partition& p){ return p.occupied == -1; })) << " / 6\n";
+    // ss << "     Free partitions: " << std::count_if(memory_paritions, memory_paritions + 6,
+    //                                      [](const memory_partition& p){ return p.occupied == -1; }) << " / 6\n";
+    // ss << "  c. Total free memory: " << free_memory << " / " << total_memory << " units\n";
+    // ss << "  d. Total usable free memory: " << usable_free_memory << " units\n";
+    // ss << "     (No internal fragmentation in best-fit fixed partitioning)\n";
+    // ss << "-----------------------------------------------------------\n";
+
+    return ss.str();
+}
+
 void FCFS(std::vector<PCB> &ready_queue) {
     std::sort(
                 ready_queue.begin(),
@@ -19,7 +63,7 @@ void FCFS(std::vector<PCB> &ready_queue) {
             );
 }
 
-std::tuple<std::string> run_simulation(std::vector<PCB> list_processes) {
+std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_processes) {
 
     std::vector<PCB> ready_queue;   //The ready queue of processes
     std::vector<PCB> wait_queue;    //The wait queue of processes
@@ -36,16 +80,14 @@ std::tuple<std::string> run_simulation(std::vector<PCB> list_processes) {
     idle_CPU(running);
 
     std::string execution_status;
+    std::string memory_status;
 
     //make the output table (the header row)
     execution_status = print_exec_header();
 
-    //Loop while there are unarrived processes or active processes in the system
     while(!all_process_terminated(list_processes)) {
 
-        // 1. ADMITTING ARRIVALS
-        //Population of ready queue is given to you as an example.
-        //Go through the list of proceeses
+        // 1. Admit new arrivals
         for(auto &process : list_processes) {
             if (process.state == NOT_ASSIGNED && process.arrival_time <= current_time) {
                 //if so, assign memory and put the process into the ready queue
@@ -66,15 +108,13 @@ std::tuple<std::string> run_simulation(std::vector<PCB> list_processes) {
         }
 
         // 2. Move completed I/Os back to ready
-        for (int i = 0; i < wait_queue.size(); ) {
+        for (int i = 0; i < wait_queue.size(); i++) {
             if (current_time - wait_queue[i].start_time >= wait_queue[i].io_duration) {
                 wait_queue[i].state = READY;
                 ready_queue.push_back(wait_queue[i]);
                 sync_queue(job_list, wait_queue[i]);
                 execution_status += print_exec_status(current_time, wait_queue[i].PID, WAITING, READY);
                 wait_queue.erase(wait_queue.begin() + i);
-            } else {
-                i++;
             }
         }
 
@@ -87,6 +127,9 @@ std::tuple<std::string> run_simulation(std::vector<PCB> list_processes) {
             sync_queue(job_list, running);
 
             execution_status += print_exec_status(current_time, running.PID, READY, RUNNING);
+
+            // Record detailed memory state when process starts
+            memory_status += get_memory_state(current_time, running.PID);
         }
 
         // 4. Make sure CPU isn't idle before checking these things
@@ -124,14 +167,12 @@ std::tuple<std::string> run_simulation(std::vector<PCB> list_processes) {
             }
         }
         current_time += 1;
-
-        // break;
     }
 
     //Close the output table
     execution_status += print_exec_footer();
 
-    return std::make_tuple(execution_status);
+    return std::make_tuple(execution_status, memory_status);
 }
 
 
@@ -167,9 +208,10 @@ int main(int argc, char** argv) {
     input_file.close();
 
     //With the list of processes, run the simulation
-    auto [exec] = run_simulation(list_process);
+    auto [exec, mem_report] = run_simulation(list_process);
 
     write_output(exec, "execution.txt");
+    write_output(mem_report, "memory_analysis.txt");
 
     return 0;
 }

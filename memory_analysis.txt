@@ -1,0 +1,121 @@
+
+--- Memory State at Time 0 (Process 0 starting) ---
+Partition States:
+  Partition | Size | Status
+  ----------|------|------------------
+      1     |   40 | FREE
+      2     |   25 | FREE
+      3     |   15 | FREE
+      4     |   10 | USED (PID 0)
+      5     |    8 | FREE
+      6     |    2 | FREE
+
+--- Memory State at Time 5 (Process 1 starting) ---
+Partition States:
+  Partition | Size | Status
+  ----------|------|------------------
+      1     |   40 | FREE
+      2     |   25 | FREE
+      3     |   15 | USED (PID 1)
+      4     |   10 | FREE
+      5     |    8 | FREE
+      6     |    2 | FREE
+
+--- Memory State at Time 17 (Process 1 starting) ---
+Partition States:
+  Partition | Size | Status
+  ----------|------|------------------
+      1     |   40 | FREE
+      2     |   25 | FREE
+      3     |   15 | USED (PID 1)
+      4     |   10 | FREE
+      5     |    8 | FREE
+      6     |    2 | FREE
+
+--- Memory State at Time 100 (Process 2 starting) ---
+Partition States:
+  Partition | Size | Status
+  ----------|------|------------------
+      1     |   40 | USED (PID 2)
+      2     |   25 | FREE
+      3     |   15 | FREE
+      4     |   10 | FREE
+      5     |    8 | FREE
+      6     |    2 | USED (PID 5)
+
+--- Memory State at Time 121 (Process 5 starting) ---
+Partition States:
+  Partition | Size | Status
+  ----------|------|------------------
+      1     |   40 | USED (PID 2)
+      2     |   25 | FREE
+      3     |   15 | FREE
+      4     |   10 | FREE
+      5     |    8 | FREE
+      6     |    2 | USED (PID 5)
+
+--- Memory State at Time 142 (Process 2 starting) ---
+Partition States:
+  Partition | Size | Status
+  ----------|------|------------------
+      1     |   40 | USED (PID 2)
+      2     |   25 | FREE
+      3     |   15 | FREE
+      4     |   10 | FREE
+      5     |    8 | FREE
+      6     |    2 | USED (PID 5)
+
+--- Memory State at Time 158 (Process 5 starting) ---
+Partition States:
+  Partition | Size | Status
+  ----------|------|------------------
+      1     |   40 | FREE
+      2     |   25 | FREE
+      3     |   15 | FREE
+      4     |   10 | FREE
+      5     |    8 | FREE
+      6     |    2 | USED (PID 5)
+
+--- Memory State at Time 500 (Process 3 starting) ---
+Partition States:
+  Partition | Size | Status
+  ----------|------|------------------
+      1     |   40 | FREE
+      2     |   25 | FREE
+      3     |   15 | FREE
+      4     |   10 | FREE
+      5     |    8 | FREE
+      6     |    2 | USED (PID 3)
+
+--- Memory State at Time 601 (Process 3 starting) ---
+Partition States:
+  Partition | Size | Status
+  ----------|------|------------------
+      1     |   40 | FREE
+      2     |   25 | FREE
+      3     |   15 | FREE
+      4     |   10 | FREE
+      5     |    8 | FREE
+      6     |    2 | USED (PID 3)
+
+--- Memory State at Time 1000 (Process 4 starting) ---
+Partition States:
+  Partition | Size | Status
+  ----------|------|------------------
+      1     |   40 | FREE
+      2     |   25 | USED (PID 4)
+      3     |   15 | FREE
+      4     |   10 | FREE
+      5     |    8 | FREE
+      6     |    2 | FREE
+
+--- Memory State at Time 1102 (Process 4 starting) ---
+Partition States:
+  Partition | Size | Status
+  ----------|------|------------------
+      1     |   40 | FREE
+      2     |   25 | USED (PID 4)
+      3     |   15 | FREE
+      4     |   10 | FREE
+      5     |    8 | FREE
+      6     |    2 | FREE
