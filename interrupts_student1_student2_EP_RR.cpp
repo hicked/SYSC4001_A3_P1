@@ -61,8 +61,8 @@ std::string parseMemoryEvents(unsigned int current_time,
         unsigned int unused = (pid == -1) ? part.size : (part.size > used ? part.size - used : 0);
         output += "| " + std::to_string(part.partition_number) +
                "    |  " + std::to_string(part.size) +
-               (part.size < 10 ? "   | " : "  | ") +
-               (pid == -1 ? std::string("-1") : std::to_string(pid)) +
+               (part.size < 10 ? "   | " : "  | ") +        // dynamic size
+               (pid == -1 ? std::string("-1") : " " + std::to_string(pid)) +
                (pid == -1 || pid > 9 ? "  | " : "   | ") +
                std::to_string(used) + (used < 10 ? "    | " : "   | ") +
                std::to_string(unused) + (unused < 10 ? "      |\n" : "     |\n");

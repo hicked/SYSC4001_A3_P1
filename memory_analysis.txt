@@ -3,330 +3,749 @@
 Transitions this tick:
 | PID | Old -> New
 |-----|-------------
+|  0  | NOT_ASSIGNED -> NEW
 |  0  | NEW -> READY
+|  1  | NOT_ASSIGNED -> NEW
+|  1  | NEW -> READY
 |  0  | READY -> RUNNING
 
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   1   |    -    |    0    |     -      |
+
 Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | 0   | 10   | 0      | RUNNING |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | -1  | 0    | 2      | - |
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  0   |   25   | -1  |
+|  3   |  15  |  0   |   15   | -1  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
 
 --- Memory / Events at Time 5 ---
 Transitions this tick:
 | PID | Old -> New
 |-----|-------------
-|  1  | NEW -> READY
+|  2  | NOT_ASSIGNED -> NEW
+|  2  | NEW -> READY
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   1   |    -    |    0    |     -      |
+|  -  |   2   |    -    |    -    |     -      |
 
 Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | 1   | 15   | 0      | READY |
-| 4    |  10  | 0   | 10   | 0      | RUNNING |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | -1  | 0    | 2      | - |
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  0   |   25   | -1  |
+|  3   |  15  |  12  |   3    |  2  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
 
 --- Memory / Events at Time 10 ---
 Transitions this tick:
 | PID | Old -> New
 |-----|-------------
-|  0  | RUNNING -> TERMINATED
-|  1  | READY -> RUNNING
+|  3  | NOT_ASSIGNED -> NEW
+|  3  | NEW -> READY
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   1   |    -    |    0    |     -      |
+|  -  |   2   |    -    |    -    |     -      |
+|  -  |   3   |    -    |    -    |     -      |
 
 Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | 1   | 15   | 0      | RUNNING |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | -1  | 0    | 2      | - |
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  12  |   3    |  2  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
 
---- Memory / Events at Time 20 ---
+======================================================================
+
+--- Memory / Events at Time 15 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  4  | NOT_ASSIGNED -> NEW
+|  4  | NEW -> READY
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   1   |    -    |    0    |     -      |
+|  -  |   2   |    -    |    -    |     -      |
+|  -  |   3   |    -    |    -    |     -      |
+|  -  |   4   |    -    |    -    |     -      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  25  |   15   |  4  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  12  |   3    |  2  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 18 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  5  | NOT_ASSIGNED -> NEW
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  5  |   1   |    -    |    0    |     -      |
+|  -  |   2   |    -    |    -    |     -      |
+|  -  |   3   |    -    |    -    |     -      |
+|  -  |   4   |    -    |    -    |     -      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  25  |   15   |  4  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  12  |   3    |  2  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 25 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  0  | RUNNING -> WAITING
+|  1  | READY -> RUNNING
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  5  |   2   |    0    |    1    |     -      |
+|  -  |   3   |    -    |    -    |     -      |
+|  -  |   4   |    -    |    -    |     -      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  25  |   15   |  4  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  12  |   3    |  2  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 33 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  0  | WAITING -> READY
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  5  |   2   |    -    |    1    |     -      |
+|  -  |   3   |    -    |    -    |     -      |
+|  -  |   4   |    -    |    -    |     -      |
+|  -  |   0   |    -    |    -    |     -      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  25  |   15   |  4  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  12  |   3    |  2  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 55 ---
 Transitions this tick:
 | PID | Old -> New
 |-----|-------------
 |  1  | RUNNING -> WAITING
+|  2  | READY -> RUNNING
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  5  |   3   |    1    |    2    |     -      |
+|  -  |   4   |    -    |    -    |     -      |
+|  -  |   0   |    -    |    -    |     -      |
 
 Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | 1   | 15   | 0      | WAITING |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | -1  | 0    | 2      | - |
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  25  |   15   |  4  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  12  |   3    |  2  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
 
---- Memory / Events at Time 22 ---
+======================================================================
+
+--- Memory / Events at Time 65 ---
 Transitions this tick:
 | PID | Old -> New
 |-----|-------------
 |  1  | WAITING -> READY
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  5  |   3   |    -    |    2    |     -      |
+|  -  |   4   |    -    |    -    |     -      |
+|  -  |   0   |    -    |    -    |     -      |
+|  -  |   1   |    -    |    -    |     -      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  25  |   15   |  4  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  12  |   3    |  2  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 125 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  2  | RUNNING -> TERMINATED
+|  3  | READY -> RUNNING
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  5  |   4   |    -    |    3    |     2      |
+|  -  |   0   |    -    |    -    |     -      |
+|  -  |   1   |    -    |    -    |     -      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  25  |   15   |  4  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  0   |   15   | -1  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 126 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  5  | NEW -> READY
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   4   |    -    |    3    |     2      |
+|  -  |   0   |    -    |    -    |     -      |
+|  -  |   1   |    -    |    -    |     -      |
+|  -  |   5   |    -    |    -    |     -      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  25  |   15   |  4  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 165 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  3  | RUNNING -> WAITING
+|  4  | READY -> RUNNING
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   0   |    3    |    4    |     2      |
+|  -  |   1   |    -    |    -    |     -      |
+|  -  |   5   |    -    |    -    |     -      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  25  |   15   |  4  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 177 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  3  | WAITING -> READY
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   0   |    -    |    4    |     2      |
+|  -  |   1   |    -    |    -    |     -      |
+|  -  |   5   |    -    |    -    |     -      |
+|  -  |   3   |    -    |    -    |     -      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  25  |   15   |  4  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 225 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  4  | RUNNING -> TERMINATED
+|  0  | READY -> RUNNING
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   1   |    -    |    0    |     2      |
+|  -  |   5   |    -    |    -    |     4      |
+|  -  |   3   |    -    |    -    |     -      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 250 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  0  | RUNNING -> WAITING
 |  1  | READY -> RUNNING
 
-Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | 1   | 15   | 0      | RUNNING |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | -1  | 0    | 2      | - |
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   5   |    0    |    1    |     2      |
+|  -  |   3   |    -    |    -    |     4      |
 
---- Memory / Events at Time 27 ---
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 258 ---
 Transitions this tick:
 | PID | Old -> New
 |-----|-------------
-|  1  | RUNNING -> TERMINATED
+|  0  | WAITING -> READY
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   5   |    -    |    1    |     2      |
+|  -  |   3   |    -    |    -    |     4      |
+|  -  |   0   |    -    |    -    |     -      |
 
 Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | -1  | 0    | 2      | - |
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
 
---- Memory / Events at Time 100 ---
+======================================================================
+
+--- Memory / Events at Time 280 ---
 Transitions this tick:
 | PID | Old -> New
 |-----|-------------
-|  2  | NEW -> READY
-|  5  | NEW -> READY
-|  2  | READY -> RUNNING
-
-Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | 2   | 40   | 0      | RUNNING |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | 5   | 2    | 0      | READY |
-
---- Memory / Events at Time 120 ---
-Transitions this tick:
-| PID | Old -> New
-|-----|-------------
-|  2  | RUNNING -> WAITING
+|  1  | RUNNING -> WAITING
 |  5  | READY -> RUNNING
 
-Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | 2   | 40   | 0      | WAITING |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | 5   | 2    | 0      | RUNNING |
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   3   |    1    |    5    |     2      |
+|  -  |   0   |    -    |    -    |     4      |
 
---- Memory / Events at Time 122 ---
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 290 ---
 Transitions this tick:
 | PID | Old -> New
 |-----|-------------
-|  2  | WAITING -> READY
+|  1  | WAITING -> READY
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   3   |    -    |    5    |     2      |
+|  -  |   0   |    -    |    -    |     4      |
+|  -  |   1   |    -    |    -    |     -      |
 
 Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | 2   | 40   | 0      | READY |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | 5   | 2    | 0      | RUNNING |
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
 
---- Memory / Events at Time 140 ---
+======================================================================
+
+--- Memory / Events at Time 315 ---
 Transitions this tick:
 | PID | Old -> New
 |-----|-------------
 |  5  | RUNNING -> WAITING
-|  2  | READY -> RUNNING
+|  3  | READY -> RUNNING
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   0   |    5    |    3    |     2      |
+|  -  |   1   |    -    |    -    |     4      |
 
 Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | 2   | 40   | 0      | RUNNING |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | 5   | 2    | 0      | WAITING |
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
 
---- Memory / Events at Time 142 ---
+======================================================================
+
+--- Memory / Events at Time 325 ---
 Transitions this tick:
 | PID | Old -> New
 |-----|-------------
 |  5  | WAITING -> READY
 
-Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | 2   | 40   | 0      | RUNNING |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | 5   | 2    | 0      | READY |
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   0   |    -    |    3    |     2      |
+|  -  |   1   |    -    |    -    |     4      |
+|  -  |   5   |    -    |    -    |     -      |
 
---- Memory / Events at Time 155 ---
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 355 ---
 Transitions this tick:
 | PID | Old -> New
 |-----|-------------
-|  2  | RUNNING -> TERMINATED
-|  5  | READY -> RUNNING
+|  3  | RUNNING -> WAITING
+|  0  | READY -> RUNNING
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   1   |    3    |    0    |     2      |
+|  -  |   5   |    -    |    -    |     4      |
 
 Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | 5   | 2    | 0      | RUNNING |
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
 
---- Memory / Events at Time 170 ---
+======================================================================
+
+--- Memory / Events at Time 367 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  3  | WAITING -> READY
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   1   |    -    |    0    |     2      |
+|  -  |   5   |    -    |    -    |     4      |
+|  -  |   3   |    -    |    -    |     -      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 380 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  0  | RUNNING -> WAITING
+|  1  | READY -> RUNNING
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   5   |    0    |    1    |     2      |
+|  -  |   3   |    -    |    -    |     4      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 388 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  0  | WAITING -> READY
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   5   |    -    |    1    |     2      |
+|  -  |   3   |    -    |    -    |     4      |
+|  -  |   0   |    -    |    -    |     -      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  8   |   2    |  1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 410 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  1  | RUNNING -> TERMINATED
+|  5  | READY -> RUNNING
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   3   |    -    |    5    |     1      |
+|  -  |   0   |    -    |    -    |     2      |
+|  -  |   -   |    -    |    -    |     4      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  0   |   10   | -1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 445 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  5  | RUNNING -> WAITING
+|  3  | READY -> RUNNING
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   0   |    5    |    3    |     1      |
+|  -  |   -   |    -    |    -    |     2      |
+|  -  |   -   |    -    |    -    |     4      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  15  |   10   |  3  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  0   |   10   | -1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 450 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  3  | RUNNING -> TERMINATED
+|  0  | READY -> RUNNING
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   -   |    5    |    0    |     1      |
+|  -  |   -   |    -    |    -    |     2      |
+|  -  |   -   |    -    |    -    |     3      |
+|  -  |   -   |    -    |    -    |     4      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  0   |   25   | -1  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  0   |   10   | -1  |
+|  5   |  8   |  5   |   3    |  0  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 455 ---
+Transitions this tick:
+| PID | Old -> New
+|-----|-------------
+|  5  | WAITING -> READY
+|  0  | RUNNING -> TERMINATED
+|  5  | READY -> RUNNING
+
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   -   |    -    |    5    |     0      |
+|  -  |   -   |    -    |    -    |     1      |
+|  -  |   -   |    -    |    -    |     2      |
+|  -  |   -   |    -    |    -    |     3      |
+|  -  |   -   |    -    |    -    |     4      |
+
+Partition Usage:
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  0   |   25   | -1  |
+|  3   |  15  |  10  |   5    |  5  |
+|  4   |  10  |  0   |   10   | -1  |
+|  5   |  8   |  0   |   8    | -1  |
+|  6   |  2   |  0   |   2    | -1  |
+
+======================================================================
+
+--- Memory / Events at Time 460 ---
 Transitions this tick:
 | PID | Old -> New
 |-----|-------------
 |  5  | RUNNING -> TERMINATED
 
-Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | -1  | 0    | 2      | - |
-
---- Memory / Events at Time 500 ---
-Transitions this tick:
-| PID | Old -> New
-|-----|-------------
-|  3  | NEW -> READY
-|  3  | READY -> RUNNING
+Process State:
+| NEW | READY | WAITING | RUNNING | TERMINATED |
+|-----|-------|---------|---------|------------|
+|  -  |   -   |    -    |    -    |     0      |
+|  -  |   -   |    -    |    -    |     1      |
+|  -  |   -   |    -    |    -    |     2      |
+|  -  |   -   |    -    |    -    |     3      |
+|  -  |   -   |    -    |    -    |     4      |
+|  -  |   -   |    -    |    -    |     5      |
 
 Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | 3   | 1    | 1      | RUNNING |
+| Part | Size | Used | Unused | PID |
+|------|------|------|--------|-----|
+|  1   |  40  |  0   |   40   | -1  |
+|  2   |  25  |  0   |   25   | -1  |
+|  3   |  15  |  0   |   15   | -1  |
+|  4   |  10  |  0   |   10   | -1  |
+|  5   |  8   |  0   |   8    | -1  |
+|  6   |  2   |  0   |   2    | -1  |
 
---- Memory / Events at Time 600 ---
-Transitions this tick:
-| PID | Old -> New
-|-----|-------------
-|  3  | RUNNING -> READY
-|  3  | READY -> RUNNING
-
-Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | 3   | 1    | 1      | RUNNING |
-
---- Memory / Events at Time 700 ---
-Transitions this tick:
-| PID | Old -> New
-|-----|-------------
-|  3  | RUNNING -> TERMINATED
-
-Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | -1  | 0    | 2      | - |
-
---- Memory / Events at Time 1000 ---
-Transitions this tick:
-| PID | Old -> New
-|-----|-------------
-|  4  | NEW -> READY
-|  4  | READY -> RUNNING
-
-Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | 4   | 20   | 5      | RUNNING |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | -1  | 0    | 2      | - |
-
---- Memory / Events at Time 1100 ---
-Transitions this tick:
-| PID | Old -> New
-|-----|-------------
-|  4  | RUNNING -> WAITING
-
-Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | 4   | 20   | 5      | WAITING |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | -1  | 0    | 2      | - |
-
---- Memory / Events at Time 1102 ---
-Transitions this tick:
-| PID | Old -> New
-|-----|-------------
-|  4  | WAITING -> READY
-|  4  | READY -> RUNNING
-
-Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | 4   | 20   | 5      | RUNNING |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | -1  | 0    | 2      | - |
-
---- Memory / Events at Time 1202 ---
-Transitions this tick:
-| PID | Old -> New
-|-----|-------------
-|  4  | RUNNING -> TERMINATED
-
-Partition Usage:
-| Part | Size | PID | Used | Unused | State   |
-|------|------|-----|------|--------|---------|
-| 1    |  40  | -1  | 0    | 40     | - |
-| 2    |  25  | -1  | 0    | 25     | - |
-| 3    |  15  | -1  | 0    | 15     | - |
-| 4    |  10  | -1  | 0    | 10     | - |
-| 5    |  8   | -1  | 0    | 8      | - |
-| 6    |  2   | -1  | 0    | 2      | - |
+======================================================================

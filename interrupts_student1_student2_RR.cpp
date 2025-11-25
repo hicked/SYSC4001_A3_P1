@@ -17,17 +17,23 @@ struct Event {
     states new_state;
 };
 
-// Build consolidated memory + transition report for one time tick (string concatenation version)
-std::string parseMemoryEvents(unsigned int current_time,
-                              const std::vector<Event>& transitions,
-                              const std::vector<PCB>& job_list) {
-    if (transitions.empty()) return std::string();
+// Build consolidated memory + transition and queue report for one time tick
+std::string parseEvents(unsigned int current_time,
+                        const std::vector<Event>& transitions,
+                        const std::vector<PCB>& job_list,
+                        const std::vector<PCB>& ready_queue,
+                        const std::vector<PCB>& wait_queue,
+                        const PCB& running) {
+    if (transitions.empty()) {return std::string();}
 
+    // This is basically a short summary of what transitions happened at this time frame
     std::string output;
     output += "\n--- Memory / Events at Time " + std::to_string(current_time) + " ---\n";
     output += "Transitions this tick:\n";
     output += "| PID | Old -> New\n";
     output += "|-----|-------------\n";
+
+    // turn transition ENUM into string for printing
     for (auto &t : transitions) {
         output += "|  " + std::to_string(t.pid) + "  | " +
             std::string(t.old_state == NEW ? "NEW" :
@@ -43,9 +49,92 @@ std::string parseMemoryEvents(unsigned int current_time,
                         t.new_state == TERMINATED ? "TERMINATED" : "NOT_ASSIGNED") + "\n";
     }
 
+    // Process State table
+    // This will show the states of each pid, as well as the order they arrive in (FIFO)
+    // Note that they will not necessarily leave the state in FIFO, that will depend on the scheduling algorithm
+    output += "\nProcess State:\n";
+    output += "| NEW | READY | WAITING | RUNNING | TERMINATED |\n";
+    output += "|-----|-------|---------|---------|------------|";
+
+    // Collect PIDs for each state
+    std::vector<int> new_pids, ready_pids, waiting_pids, terminated_pids;
+    int running_pid = -1;
+
+    for (auto &job : job_list) {
+        if (job.state == NEW) {
+            new_pids.push_back(job.PID);
+        } else if (job.state == TERMINATED) {
+            terminated_pids.push_back(job.PID);
+        }
+    }
+    for (const auto &p : ready_queue) {
+        ready_pids.push_back(p.PID);
+    }
+    for (const auto &p : wait_queue) {
+        waiting_pids.push_back(p.PID);
+    }
+    if (running.state == RUNNING) {
+        running_pid = running.PID;
+    }
+
+    // Find max rows needed
+    // vector.size() returns size_t so we need to use that
+    size_t max_rows = std::max({new_pids.size(),
+                                ready_pids.size(),
+                                waiting_pids.size(),
+                                (size_t)(running_pid != -1 ? 1 : 0),
+                                terminated_pids.size()});
+    if (max_rows == 0) {max_rows = 1;} // At least one row
+
+    // Print rows
+    for (size_t i = 0; i < max_rows; i++) {
+        output += "\n|";
+
+        // NEW column
+        if (i < new_pids.size()) {
+            output += "  " + std::to_string(new_pids[i]) + (new_pids[i] < 10 ? "  |" : " |");
+        } else {
+            output += "  -  |";
+        }
+
+        // READY column
+        if (i < ready_pids.size()) {
+            output += "   " + std::to_string(ready_pids[i]) + (ready_pids[i] < 10 ? "   |" : "  |");
+        } else {
+            output += "   -   |";
+        }
+
+        // WAITING column
+        if (i < waiting_pids.size()) {
+            output += "    " + std::to_string(waiting_pids[i]) + (waiting_pids[i] < 10 ? "    |" : "   |");
+        }else {
+            output += "    -    |";
+        }
+
+        // RUNNING column
+        if (i == 0) {
+            if (running_pid != -1) {
+                output += "    " + std::to_string(running_pid) + (running_pid < 10 ? "    |" : "   |");
+            } else {
+                output += "    -    |";
+            }
+        } else {
+            output += "    -    |";
+        }
+
+        // TERMINATED column
+        if (i < terminated_pids.size()) {
+            output += "     " + std::to_string(terminated_pids[i]) + (terminated_pids[i] < 10 ? "      |" : "     |");
+        } else {
+            output += "     -      |";
+        }
+    }
+    output += "\n";
+
+    // Final table: Shows the usage of all partitions, as well as by which PID
     output += "\nPartition Usage:\n";
-    output += "| Part | Size | PID | Used | Unused | State   |\n";
-    output += "|------|------|-----|------|--------|---------|\n";
+    output += "| Part | Size | Used | Unused | PID |\n";
+    output += "|------|------|------|--------|-----|\n";
     for (int i = 0; i < 6; i++) {
         const memory_partition &part = memory_paritions[i];
         int pid = part.occupied;
@@ -62,24 +151,21 @@ std::string parseMemoryEvents(unsigned int current_time,
             }
         }
 
-        auto state_str =
-            (pid == -1) ? "-" :
-            (proc_state == NEW ? "NEW" :
-             proc_state == READY ? "READY" :
-             proc_state == RUNNING ? "RUNNING" :
-             proc_state == WAITING ? "WAITING" :
-             proc_state == TERMINATED ? "TERMINATED" : "N/A");
-
         unsigned int unused = (pid == -1) ? part.size : (part.size > used ? part.size - used : 0);
-        output += "| " + std::to_string(part.partition_number) +
-               "    |  " + std::to_string(part.size) +
-               (part.size < 10 ? "   | " : "  | ") +
-               (pid == -1 ? std::string("-1") : std::to_string(pid)) +
-               (pid == -1 || pid > 9 ? "  | " : "   | ") +
-               std::to_string(used) + (used < 10 ? "    | " : "   | ") +
-               std::to_string(unused) + (unused < 10 ? "      | " : "     | ") +
-               state_str + " |\n";
+        // Build row without state
+        output += "|  " + std::to_string(part.partition_number) + "   |  " +
+                std::to_string(part.size) +
+                    (part.size < 10 ? "   |  " : "  |  ") +
+                std::to_string(used) +
+                    (used < 10 ? "   |   " : "  |   ") +
+                std::to_string(unused) +
+                    (unused < 10 ? "    | " : "   | ") +
+                (pid == -1 ? std::string("-1") : " " + std::to_string(pid)) +
+                    (pid == -1 || pid > 9 ? "  |\n" : "  |\n");
     }
+
+    output += "\n" + std::string(70, '=') + "\n";
+
     return output;
 }
 
@@ -123,12 +209,28 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
         // 1. Admit new arrivals
         for(auto &process : list_processes) {
             if (process.state == NOT_ASSIGNED && process.arrival_time <= current_time) {
-                //if so, assign memory and put the process into the ready queue
+                // Mark process arrival (transition from NOT_ASSIGNED to NEW)
+                process.state = NEW;
+                memory_transitions.push_back({current_time, process.PID, NOT_ASSIGNED, NEW});
+
+                // if so, assign memory and put the process into the ready queue
                 if (assign_memory(process)) {
                     process.state = READY;  //Set the process state to READY
                     ready_queue.push_back(process); //Add the process to the ready queue
                     job_list.push_back(process); //Add it to the list of processes
 
+                    execution_status += print_exec_status(current_time, process.PID, NEW, READY);
+                    memory_transitions.push_back({current_time, process.PID, NEW, READY});
+                } else {
+                    // Failed to assign memory - add to job_list but keep in NEW state
+                    job_list.push_back(process);
+                }
+            } else if (process.state == NEW && process.arrival_time < current_time) {
+                // Try to assign memory to processes still waiting
+                if (assign_memory(process)) {
+                    process.state = READY;
+                    ready_queue.push_back(process);
+                    sync_queue(job_list, process);
                     execution_status += print_exec_status(current_time, process.PID, NEW, READY);
                     memory_transitions.push_back({current_time, process.PID, NEW, READY});
                 }
@@ -204,7 +306,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
         }
 
         if(!memory_transitions.empty()) {
-            memory_status += parseMemoryEvents(current_time, memory_transitions, job_list);
+            memory_status += parseEvents(current_time, memory_transitions, job_list, ready_queue, wait_queue, running);
         }
         current_time += 1;
     }
