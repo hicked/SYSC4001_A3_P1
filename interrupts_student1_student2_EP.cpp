@@ -136,13 +136,16 @@ std::string parseEvents(unsigned int current_time,
             }
         }
         unsigned int unused = (pid == -1) ? part.size : (part.size > used ? part.size - used : 0);
-        output += "|  " + std::to_string(part.partition_number) +
-               "   |  " + std::to_string(part.size) +
-               (part.size < 10 ? "   |  " : "  |  ") +
-               std::to_string(used) + (used < 10 ? "   |   " : "  |   ") +
-               std::to_string(unused) + (unused < 10 ? "    | " : "   | ") +
-               (pid == -1 ? std::string("-1") : " " + std::to_string(pid)) +
-               (pid == -1 || pid > 9 ? "  |\n" : "  |\n");
+        // Build row without state
+        output += "|  " + std::to_string(part.partition_number) + "   |  " +
+                std::to_string(part.size) +
+                    (part.size < 10 ? "   |  " : "  |  ") +
+                std::to_string(used) +
+                    (used < 10 ? "   |   " : "  |   ") +
+                std::to_string(unused) +
+                    (unused < 10 ? "    | " : "   | ") +
+                (pid == -1 ? std::string("-1") : " " + std::to_string(pid)) +
+                    (pid == -1 || pid > 9 ? "  |\n" : "  |\n");
     }
 
     output += "\n" + std::string(70, '=') + "\n";

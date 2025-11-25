@@ -3,50 +3,55 @@
 +------------------------------------------------+
 |                 0 |  0 |       NEW |     READY |
 |                 0 |  1 |       NEW |     READY |
-|                 0 |  1 |     READY |   RUNNING |
+|                 0 |  0 |     READY |   RUNNING |
 |                 5 |  2 |       NEW |     READY |
 |                10 |  3 |       NEW |     READY |
 |                15 |  4 |       NEW |     READY |
-|                30 |  1 |   RUNNING |   WAITING |
-|                31 |  4 |     READY |   RUNNING |
-|                40 |  1 |   WAITING |     READY |
-|                40 |  4 |   RUNNING |     READY |
-|                41 |  4 |     READY |   RUNNING |
-|                92 |  4 |   RUNNING |TERMINATED |
-|                93 |  5 |       NEW |     READY |
-|                93 |  5 |     READY |   RUNNING |
-|               128 |  5 |   RUNNING |   WAITING |
-|               129 |  3 |     READY |   RUNNING |
-|               138 |  5 |   WAITING |     READY |
-|               169 |  3 |   RUNNING |   WAITING |
-|               170 |  5 |     READY |   RUNNING |
-|               181 |  3 |   WAITING |     READY |
-|               181 |  5 |   RUNNING |     READY |
-|               182 |  5 |     READY |   RUNNING |
-|               211 |  5 |   RUNNING |TERMINATED |
-|               212 |  3 |     READY |   RUNNING |
-|               252 |  3 |   RUNNING |   WAITING |
-|               253 |  2 |     READY |   RUNNING |
-|               264 |  3 |   WAITING |     READY |
-|               323 |  2 |   RUNNING |TERMINATED |
-|               324 |  3 |     READY |   RUNNING |
-|               329 |  3 |   RUNNING |TERMINATED |
-|               330 |  1 |     READY |   RUNNING |
-|               360 |  1 |   RUNNING |   WAITING |
-|               361 |  0 |     READY |   RUNNING |
-|               370 |  1 |   WAITING |     READY |
-|               386 |  0 |   RUNNING |   WAITING |
-|               387 |  1 |     READY |   RUNNING |
-|               394 |  0 |   WAITING |     READY |
-|               394 |  1 |   RUNNING |     READY |
-|               395 |  1 |     READY |   RUNNING |
-|               418 |  1 |   RUNNING |TERMINATED |
-|               419 |  0 |     READY |   RUNNING |
-|               444 |  0 |   RUNNING |   WAITING |
-|               452 |  0 |   WAITING |     READY |
-|               452 |  0 |     READY |   RUNNING |
-|               477 |  0 |   RUNNING |   WAITING |
-|               485 |  0 |   WAITING |     READY |
-|               485 |  0 |     READY |   RUNNING |
-|               490 |  0 |   RUNNING |TERMINATED |
+|                25 |  0 |   RUNNING |   WAITING |
+|                25 |  1 |     READY |   RUNNING |
+|                33 |  0 |   WAITING |     READY |
+|                55 |  1 |   RUNNING |   WAITING |
+|                55 |  2 |     READY |   RUNNING |
+|                65 |  1 |   WAITING |     READY |
+|               125 |  2 |   RUNNING |TERMINATED |
+|               125 |  3 |     READY |   RUNNING |
+|               126 |  5 |       NEW |     READY |
+|               165 |  3 |   RUNNING |   WAITING |
+|               165 |  4 |     READY |   RUNNING |
+|               177 |  3 |   WAITING |     READY |
+|               225 |  4 |   RUNNING |TERMINATED |
+|               225 |  0 |     READY |   RUNNING |
+|               250 |  0 |   RUNNING |   WAITING |
+|               250 |  1 |     READY |   RUNNING |
+|               258 |  0 |   WAITING |     READY |
+|               280 |  1 |   RUNNING |   WAITING |
+|               280 |  5 |     READY |   RUNNING |
+|               290 |  1 |   WAITING |     READY |
+|               315 |  5 |   RUNNING |   WAITING |
+|               315 |  3 |     READY |   RUNNING |
+|               325 |  5 |   WAITING |     READY |
+|               355 |  3 |   RUNNING |   WAITING |
+|               355 |  0 |     READY |   RUNNING |
+|               367 |  3 |   WAITING |     READY |
+|               380 |  0 |   RUNNING |   WAITING |
+|               380 |  1 |     READY |   RUNNING |
+|               388 |  0 |   WAITING |     READY |
+|               410 |  1 |   RUNNING |TERMINATED |
+|               410 |  5 |     READY |   RUNNING |
+|               445 |  5 |   RUNNING |   WAITING |
+|               445 |  3 |     READY |   RUNNING |
+|               450 |  3 |   RUNNING |TERMINATED |
+|               450 |  0 |     READY |   RUNNING |
+|               455 |  5 |   WAITING |     READY |
+|               455 |  0 |   RUNNING |TERMINATED |
+|               455 |  5 |     READY |   RUNNING |
+|               460 |  5 |   RUNNING |TERMINATED |
 +------------------------------------------------+
+
+
+========== Scheduling Metrics ==========
+Throughput:              0.012987 ms
+Average Turnaround Time: 346.166667 ms
+Average Wait Time:       269.500000 ms
+Average Response Time:   100.333333 ms
+========================================

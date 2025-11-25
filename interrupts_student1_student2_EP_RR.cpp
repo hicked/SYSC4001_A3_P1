@@ -5,7 +5,9 @@
  *
  */
 
+
 #include<interrupts_student1_student2.hpp>
+#include<map>
 
 #define QUANTUM         100
 
@@ -18,9 +20,13 @@ struct Event {
 };
 
 // Build consolidated memory + transition report for one time tick (string concatenation version)
+
 std::string parseMemoryEvents(unsigned int current_time,
                               const std::vector<Event>& transitions,
-                              const std::vector<PCB>& job_list) {
+                              const std::vector<PCB>& job_list,
+                              const std::vector<PCB>& ready_queue,
+                              const std::vector<PCB>& wait_queue,
+                              const PCB& running) {
     if (transitions.empty()) return std::string();
 
     std::string output;
@@ -43,9 +49,69 @@ std::string parseMemoryEvents(unsigned int current_time,
                         t.new_state == TERMINATED ? "TERMINATED" : "NOT_ASSIGNED") + "\n";
     }
 
+    // Process State table
+    output += "\nProcess State:\n";
+    output += "| NEW | READY | WAITING | RUNNING | TERMINATED |\n";
+    output += "|-----|-------|---------|---------|------------|";
+
+    std::vector<int> new_pids, ready_pids, waiting_pids, terminated_pids;
+    int running_pid = -1;
+    for (auto &job : job_list) {
+        if (job.state == NEW) {
+            new_pids.push_back(job.PID);
+        } else if (job.state == TERMINATED) {
+            terminated_pids.push_back(job.PID);
+        }
+    }
+    for (const auto &p : ready_queue) {
+        ready_pids.push_back(p.PID);
+    }
+    for (const auto &p : wait_queue) {
+        waiting_pids.push_back(p.PID);
+    }
+    if (running.state == RUNNING) {
+        running_pid = running.PID;
+    }
+    size_t max_rows = std::max({new_pids.size(), ready_pids.size(), waiting_pids.size(), (size_t)(running_pid != -1 ? 1 : 0), terminated_pids.size()});
+    if (max_rows == 0) {max_rows = 1;}
+    for (size_t i = 0; i < max_rows; i++) {
+        output += "\n|";
+        if (i < new_pids.size()) {
+            output += "  " + std::to_string(new_pids[i]) + (new_pids[i] < 10 ? "  |" : " |");
+        } else {
+            output += "  -  |";
+        }
+        if (i < ready_pids.size()) {
+            output += "   " + std::to_string(ready_pids[i]) + (ready_pids[i] < 10 ? "   |" : "  |");
+        } else {
+            output += "   -   |";
+        }
+        if (i < waiting_pids.size()) {
+            output += "    " + std::to_string(waiting_pids[i]) + (waiting_pids[i] < 10 ? "    |" : "   |");
+        }else {
+            output += "    -    |";
+        }
+        if (i == 0) {
+            if (running_pid != -1) {
+                output += "    " + std::to_string(running_pid) + (running_pid < 10 ? "    |" : "   |");
+            } else {
+                output += "    -    |";
+            }
+        } else {
+            output += "    -    |";
+        }
+        if (i < terminated_pids.size()) {
+            output += "     " + std::to_string(terminated_pids[i]) + (terminated_pids[i] < 10 ? "      |" : "     |");
+        } else {
+            output += "     -      |";
+        }
+    }
+    output += "\n";
+
+    // Partition Usage
     output += "\nPartition Usage:\n";
-    output += "| Part | Size | PID | Used | Unused |\n";
-    output += "|------|------|-----|------|--------|\n";
+    output += "| Part | Size | Used | Unused | PID |\n";
+    output += "|------|------|------|--------|-----|\n";
     for (int i = 0; i < 6; i++) {
         const memory_partition &part = memory_paritions[i];
         int pid = part.occupied;
@@ -59,14 +125,17 @@ std::string parseMemoryEvents(unsigned int current_time,
             }
         }
         unsigned int unused = (pid == -1) ? part.size : (part.size > used ? part.size - used : 0);
-        output += "| " + std::to_string(part.partition_number) +
-               "    |  " + std::to_string(part.size) +
-               (part.size < 10 ? "   | " : "  | ") +        // dynamic size
-               (pid == -1 ? std::string("-1") : " " + std::to_string(pid)) +
-               (pid == -1 || pid > 9 ? "  | " : "   | ") +
-               std::to_string(used) + (used < 10 ? "    | " : "   | ") +
-               std::to_string(unused) + (unused < 10 ? "      |\n" : "     |\n");
+        output += "|  " + std::to_string(part.partition_number) + "   |  " +
+                std::to_string(part.size) +
+                    (part.size < 10 ? "   |  " : "  |  ") +
+                std::to_string(used) +
+                    (used < 10 ? "   |   " : "  |   ") +
+                std::to_string(unused) +
+                    (unused < 10 ? "    | " : "   | ") +
+                (pid == -1 ? std::string("-1") : " " + std::to_string(pid)) +
+                    (pid == -1 || pid > 9 ? "  |\n" : "  |\n");
     }
+    output += "\n" + std::string(70, '=') + "\n";
     return output;
 }
 
@@ -215,13 +284,59 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             }
         }
         if(!memory_transitions.empty()) {
-            memory_status += parseMemoryEvents(current_time, memory_transitions, job_list);
+            memory_status += parseMemoryEvents(current_time, memory_transitions, job_list, ready_queue, wait_queue, running);
         }
         current_time += 1;
     }
 
+
     //Close the output table
     execution_status += print_exec_footer();
+
+    // Calculate and format metrics
+    unsigned int total_turnaround = 0;
+    unsigned int total_wait = 0;
+    unsigned int total_response = 0;
+    unsigned int num_processes = list_processes.size();
+
+    // For metrics, we need completion and first run times
+    std::map<int, unsigned int> completion_times;
+    std::map<int, unsigned int> first_run_times;
+    for (const auto& job : job_list) {
+        if (job.state == TERMINATED) {
+            completion_times[job.PID] = current_time;
+        }
+    }
+    for (const auto& job : job_list) {
+        if (job.state == RUNNING || job.state == READY || job.state == WAITING || job.state == TERMINATED) {
+            if (first_run_times.find(job.PID) == first_run_times.end()) {
+                first_run_times[job.PID] = job.start_time;
+            }
+        }
+    }
+    for (const auto& process : job_list) {
+        if (completion_times.find(process.PID) != completion_times.end() && first_run_times.find(process.PID) != first_run_times.end()) {
+            unsigned int turnaround = completion_times[process.PID] - process.arrival_time;
+            unsigned int response = first_run_times[process.PID] - process.arrival_time;
+            unsigned int wait = turnaround - process.processing_time;
+            total_turnaround += turnaround;
+            total_response += response;
+            total_wait += wait;
+        }
+    }
+    double avg_turnaround = num_processes ? (double)total_turnaround / num_processes : 0.0;
+    double avg_wait = num_processes ? (double)total_wait / num_processes : 0.0;
+    double avg_response = num_processes ? (double)total_response / num_processes : 0.0;
+    double throughput = current_time ? (double)num_processes / current_time : 0.0;
+
+    std::string metrics = "\n\n========== Scheduling Metrics ==========";
+    metrics += "\nThroughput:              " + std::to_string(throughput) + " processes/time unit";
+    metrics += "\nAverage Turnaround Time: " + std::to_string(avg_turnaround) + " time units";
+    metrics += "\nAverage Wait Time:       " + std::to_string(avg_wait) + " time units";
+    metrics += "\nAverage Response Time:   " + std::to_string(avg_response) + " time units";
+    metrics += "\n========================================\n";
+
+    execution_status += metrics;
 
     return std::make_tuple(execution_status, memory_status);
 }
