@@ -8,47 +8,45 @@
 |                10 |  3 |       NEW |     READY |
 |                15 |  4 |       NEW |     READY |
 |                30 |  1 |   RUNNING |   WAITING |
-|                30 |  4 |     READY |   RUNNING |
+|                31 |  4 |     READY |   RUNNING |
 |                40 |  1 |   WAITING |     READY |
 |                40 |  4 |   RUNNING |     READY |
-|                40 |  4 |     READY |   RUNNING |
-|                90 |  4 |   RUNNING |TERMINATED |
-|                90 |  3 |     READY |   RUNNING |
-|                91 |  5 |       NEW |     READY |
-|               130 |  3 |   RUNNING |   WAITING |
-|               130 |  5 |     READY |   RUNNING |
-|               142 |  3 |   WAITING |     READY |
-|               142 |  5 |   RUNNING |     READY |
-|               142 |  5 |     READY |   RUNNING |
-|               177 |  5 |   RUNNING |   WAITING |
-|               177 |  3 |     READY |   RUNNING |
-|               187 |  5 |   WAITING |     READY |
-|               217 |  3 |   RUNNING |   WAITING |
-|               217 |  5 |     READY |   RUNNING |
-|               229 |  3 |   WAITING |     READY |
-|               229 |  5 |   RUNNING |     READY |
-|               229 |  5 |     READY |   RUNNING |
-|               245 |  5 |   RUNNING |TERMINATED |
-|               245 |  3 |     READY |   RUNNING |
-|               250 |  3 |   RUNNING |TERMINATED |
-|               250 |  2 |     READY |   RUNNING |
-|               320 |  2 |   RUNNING |TERMINATED |
-|               320 |  1 |     READY |   RUNNING |
-|               350 |  1 |   RUNNING |   WAITING |
-|               350 |  0 |     READY |   RUNNING |
-|               360 |  1 |   WAITING |     READY |
-|               375 |  0 |   RUNNING |   WAITING |
-|               375 |  1 |     READY |   RUNNING |
-|               383 |  0 |   WAITING |     READY |
-|               383 |  1 |   RUNNING |     READY |
-|               383 |  1 |     READY |   RUNNING |
-|               405 |  1 |   RUNNING |TERMINATED |
-|               405 |  0 |     READY |   RUNNING |
-|               430 |  0 |   RUNNING |   WAITING |
-|               438 |  0 |   WAITING |     READY |
-|               438 |  0 |     READY |   RUNNING |
-|               463 |  0 |   RUNNING |   WAITING |
-|               471 |  0 |   WAITING |     READY |
-|               471 |  0 |     READY |   RUNNING |
-|               476 |  0 |   RUNNING |TERMINATED |
+|                41 |  4 |     READY |   RUNNING |
+|                92 |  4 |   RUNNING |TERMINATED |
+|                93 |  5 |       NEW |     READY |
+|                93 |  5 |     READY |   RUNNING |
+|               128 |  5 |   RUNNING |   WAITING |
+|               129 |  3 |     READY |   RUNNING |
+|               138 |  5 |   WAITING |     READY |
+|               169 |  3 |   RUNNING |   WAITING |
+|               170 |  5 |     READY |   RUNNING |
+|               181 |  3 |   WAITING |     READY |
+|               181 |  5 |   RUNNING |     READY |
+|               182 |  5 |     READY |   RUNNING |
+|               211 |  5 |   RUNNING |TERMINATED |
+|               212 |  3 |     READY |   RUNNING |
+|               252 |  3 |   RUNNING |   WAITING |
+|               253 |  2 |     READY |   RUNNING |
+|               264 |  3 |   WAITING |     READY |
+|               323 |  2 |   RUNNING |TERMINATED |
+|               324 |  3 |     READY |   RUNNING |
+|               329 |  3 |   RUNNING |TERMINATED |
+|               330 |  1 |     READY |   RUNNING |
+|               360 |  1 |   RUNNING |   WAITING |
+|               361 |  0 |     READY |   RUNNING |
+|               370 |  1 |   WAITING |     READY |
+|               386 |  0 |   RUNNING |   WAITING |
+|               387 |  1 |     READY |   RUNNING |
+|               394 |  0 |   WAITING |     READY |
+|               394 |  1 |   RUNNING |     READY |
+|               395 |  1 |     READY |   RUNNING |
+|               418 |  1 |   RUNNING |TERMINATED |
+|               419 |  0 |     READY |   RUNNING |
+|               444 |  0 |   RUNNING |   WAITING |
+|               452 |  0 |   WAITING |     READY |
+|               452 |  0 |     READY |   RUNNING |
+|               477 |  0 |   RUNNING |   WAITING |
+|               485 |  0 |   WAITING |     READY |
+|               485 |  0 |     READY |   RUNNING |
+|               490 |  0 |   RUNNING |TERMINATED |
 +------------------------------------------------+

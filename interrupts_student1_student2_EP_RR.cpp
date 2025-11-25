@@ -70,14 +70,16 @@ std::string parseMemoryEvents(unsigned int current_time,
     return output;
 }
 
-void FCFS(std::vector<PCB> &ready_queue) {
+
+// Sort ready queue by priority (lower priority number = higher priority)
+void sort_by_priority(std::vector<PCB> &ready_queue) {
     std::sort(
-                ready_queue.begin(),
-                ready_queue.end(),
-                []( const PCB &first, const PCB &second ){
-                    return (first.arrival_time > second.arrival_time);
-                }
-            );
+        ready_queue.begin(),
+        ready_queue.end(),
+        [](const PCB &first, const PCB &second) {
+            return (first.priority > second.priority); // ascending: lowest number first
+        }
+    );
 }
 
 std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_processes) {
@@ -102,24 +104,42 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
     //make the output table (the header row)
     execution_status = print_exec_header();
 
-    while(!all_process_terminated(list_processes)) {
 
-        // Stores all memory manipulations that happen this tick (gets reset every tick)
+    while(!all_process_terminated(list_processes)) {
         std::vector<Event> memory_transitions;
 
         // 1. Admit new arrivals
+        bool new_arrival = false;
         for(auto &process : list_processes) {
             if (process.state == NOT_ASSIGNED && process.arrival_time <= current_time) {
-                //if so, assign memory and put the process into the ready queue
                 if (assign_memory(process)) {
-                    process.state = READY;  //Set the process state to READY
-                    ready_queue.push_back(process); //Add the process to the ready queue
-                    job_list.push_back(process); //Add it to the list of processes
-
+                    process.state = READY;
+                    ready_queue.push_back(process);
+                    job_list.push_back(process);
+                    new_arrival = true;
                     execution_status += print_exec_status(current_time, process.PID, NEW, READY);
                     memory_transitions.push_back({current_time, process.PID, NEW, READY});
                 }
             }
+        }
+
+        // 2. Move completed I/Os back to ready
+        bool io_completed = false;
+        for (int i = 0; i < wait_queue.size(); i++) {
+            if (current_time - wait_queue[i].start_time >= wait_queue[i].io_duration) {
+                wait_queue[i].state = READY;
+                ready_queue.push_back(wait_queue[i]);
+                sync_queue(job_list, wait_queue[i]);
+                io_completed = true;
+                execution_status += print_exec_status(current_time, wait_queue[i].PID, WAITING, READY);
+                memory_transitions.push_back({current_time, wait_queue[i].PID, WAITING, READY});
+                wait_queue.erase(wait_queue.begin() + i);
+            }
+        }
+
+        // Always sort ready queue by priority after arrivals and I/O completions
+        if (!ready_queue.empty()) {
+            sort_by_priority(ready_queue);
         }
 
         // Update list_processes with states from job_list (keep them synced)
@@ -128,31 +148,26 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             sync_queue(list_processes, job);
         }
 
-        // 2. Move completed I/Os back to ready
-        for (int i = 0; i < wait_queue.size(); i++) {
-            if (current_time - wait_queue[i].start_time >= wait_queue[i].io_duration) {
-                wait_queue[i].state = READY;
-                ready_queue.push_back(wait_queue[i]);
-                sync_queue(job_list, wait_queue[i]);
-                execution_status += print_exec_status(current_time, wait_queue[i].PID, WAITING, READY);
-                memory_transitions.push_back({current_time, wait_queue[i].PID, WAITING, READY});
-                wait_queue.erase(wait_queue.begin() + i);
+        // 3. Preemption: If a higher priority process is ready, preempt running
+        bool preempted = false;
+        if ((new_arrival || io_completed) && running.state == RUNNING && !ready_queue.empty()) {
+            if (ready_queue.front().priority < running.priority) {
+                preempted = true;
             }
         }
 
-        // 3. If CPU is idle and has stuff in ready, start running next process
+        // 4. If CPU is idle and has stuff in ready, start running next process
         if (running.state == NOT_ASSIGNED && !ready_queue.empty()) {
             running = ready_queue.front();
             ready_queue.erase(ready_queue.begin());
             running.start_time = current_time;
             running.state = RUNNING;
             sync_queue(job_list, running);
-
             execution_status += print_exec_status(current_time, running.PID, READY, RUNNING);
             memory_transitions.push_back({current_time, running.PID, READY, RUNNING});
         }
 
-        // 4. Make sure CPU isn't idle before checking these things
+        // 5. Make sure CPU isn't idle before checking these things
         if (running.state == RUNNING) {
             unsigned int elapsed = current_time - running.start_time;
 
@@ -178,9 +193,19 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 memory_transitions.push_back({current_time, running.PID, RUNNING, WAITING});
                 idle_CPU(running);
             }
-            // if process has exceeded it's allowed time (quantum)
+            // if process has exceeded its allowed time (quantum)
             else if (elapsed >= QUANTUM) {
                 running.remaining_time -= QUANTUM;
+                running.state = READY;
+                ready_queue.push_back(running);
+                sync_queue(job_list, running);
+                execution_status += print_exec_status(current_time, running.PID, RUNNING, READY);
+                memory_transitions.push_back({current_time, running.PID, RUNNING, READY});
+                idle_CPU(running);
+            }
+            // if preempted by higher priority process
+            else if (preempted) {
+                running.remaining_time -= elapsed;
                 running.state = READY;
                 ready_queue.push_back(running);
                 sync_queue(job_list, running);

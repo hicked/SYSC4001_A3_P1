@@ -6,6 +6,7 @@
  */
 
 #include<interrupts_student1_student2.hpp>
+#include<map>
 
 #define QUANTUM         100
 
@@ -169,6 +170,7 @@ std::string parseEvents(unsigned int current_time,
     return output;
 }
 
+// not needed since we use FIFO vector with push back
 void FCFS(std::vector<PCB> &ready_queue) {
     std::sort(
                 ready_queue.begin(),
@@ -190,6 +192,10 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
 
     unsigned int current_time = 0;
     PCB running;
+
+    // Track metrics for each process
+    std::map<int, unsigned int> completion_times;
+    std::map<int, unsigned int> first_run_times;
 
     //Initialize an empty running process (for when when CPU is idle)
     // Need to do this at the end as well
@@ -237,22 +243,21 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             }
         }
 
-        // Update list_processes with states from job_list (keep them synced)
-        sync_queue(list_processes, running);
-        for (auto &job : job_list) {
-            sync_queue(list_processes, job);
-        }
-
         // 2. Move completed I/Os back to ready
         for (int i = 0; i < wait_queue.size(); i++) {
             if (current_time - wait_queue[i].start_time >= wait_queue[i].io_duration) {
                 wait_queue[i].state = READY;
                 ready_queue.push_back(wait_queue[i]);
-                sync_queue(job_list, wait_queue[i]);
                 execution_status += print_exec_status(current_time, wait_queue[i].PID, WAITING, READY);
                 memory_transitions.push_back({current_time, wait_queue[i].PID, WAITING, READY});
                 wait_queue.erase(wait_queue.begin() + i);
             }
+        }
+
+        // Update list_processes with states from job_list (keep them synced)
+        sync_queue(list_processes, running);
+        for (auto &job : job_list) {
+            sync_queue(list_processes, job);
         }
 
         // 3. Make sure CPU isn't idle before checking these things
@@ -263,6 +268,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             if (running.remaining_time <= elapsed) {
                 running.state = TERMINATED;
                 running.remaining_time = 0;
+                completion_times[running.PID] = current_time;
                 memory_paritions[running.partition_number - 1].occupied = -1;
                 running.partition_number = -1;
                 sync_queue(job_list, running);
@@ -301,6 +307,11 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             running.state = RUNNING;
             sync_queue(job_list, running);
 
+            // Record first run time (response time calculation)
+            if (first_run_times.find(running.PID) == first_run_times.end()) {
+                first_run_times[running.PID] = current_time;
+            }
+
             execution_status += print_exec_status(current_time, running.PID, READY, RUNNING);
             memory_transitions.push_back({current_time, running.PID, READY, RUNNING});
         }
@@ -313,6 +324,36 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
 
     //Close the output table
     execution_status += print_exec_footer();
+
+    // Calculate and format metrics
+    unsigned int total_turnaround = 0;
+    unsigned int total_wait = 0;
+    unsigned int total_response = 0;
+    unsigned int num_processes = list_processes.size();
+
+    for (const auto& process : list_processes) {
+        unsigned int turnaround = completion_times[process.PID] - process.arrival_time;
+        unsigned int response = first_run_times[process.PID] - process.arrival_time;
+        unsigned int wait = turnaround - process.processing_time;
+
+        total_turnaround += turnaround;
+        total_response += response;
+        total_wait += wait;
+    }
+
+    double avg_turnaround = (double)total_turnaround / num_processes;
+    double avg_wait = (double)total_wait / num_processes;
+    double avg_response = (double)total_response / num_processes;
+    double throughput = (double)num_processes / current_time;
+
+    std::string metrics = "\n\n========== Scheduling Metrics ==========\n";
+    metrics += "Throughput:              " + std::to_string(throughput) + " ms\n";
+    metrics += "Average Turnaround Time: " + std::to_string(avg_turnaround) + " ms\n";
+    metrics += "Average Wait Time:       " + std::to_string(avg_wait) + " ms\n";
+    metrics += "Average Response Time:   " + std::to_string(avg_response) + " ms\n";
+    metrics += "========================================\n";
+
+    execution_status += metrics;
 
     return std::make_tuple(execution_status, memory_status);
 }
