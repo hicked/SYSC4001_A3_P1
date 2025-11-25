@@ -18,6 +18,7 @@
 #include<sstream>
 #include<iomanip>
 #include<algorithm>
+#include <map>
 
 //An enumeration of states to make assignment easier
 enum states {
@@ -319,6 +320,202 @@ void idle_CPU(PCB &running) {
     running.size = 0;
     running.state = NOT_ASSIGNED;
     running.PID = -1;
+}
+
+
+
+// Transition record (per tick)
+struct Event {
+    unsigned int time;
+    int pid;
+    states old_state;
+    states new_state;
+};
+
+// Build consolidated memory + transition and queue report for one time tick
+std::string parseEvents(unsigned int current_time,
+                        const std::vector<Event>& transitions,
+                        const std::vector<PCB>& job_list,
+                        const std::vector<PCB>& ready_queue,
+                        const std::vector<PCB>& wait_queue,
+                        const PCB& running) {
+    if (transitions.empty()) {return std::string();}
+
+    // This is basically a short summary of what transitions happened at this time frame
+    std::string output;
+    output += "\n--- Memory / Events at Time " + std::to_string(current_time) + " ---\n";
+    output += "Transitions this tick:\n";
+    output += "| PID | Old -> New\n";
+    output += "|-----|-------------\n";
+
+    // turn transition ENUM into string for printing
+    for (auto &t : transitions) {
+        output += "|  " + std::to_string(t.pid) + "  | " +
+            std::string(t.old_state == NEW ? "NEW" :
+                        t.old_state == READY ? "READY" :
+                        t.old_state == RUNNING ? "RUNNING" :
+                        t.old_state == WAITING ? "WAITING" :
+                        t.old_state == TERMINATED ? "TERMINATED" : "NOT_ASSIGNED") +
+            " -> " +
+            std::string(t.new_state == NEW ? "NEW" :
+                        t.new_state == READY ? "READY" :
+                        t.new_state == RUNNING ? "RUNNING" :
+                        t.new_state == WAITING ? "WAITING" :
+                        t.new_state == TERMINATED ? "TERMINATED" : "NOT_ASSIGNED") + "\n";
+    }
+
+    // Process State table
+    // This will show the states of each pid, as well as the order they arrive in (FIFO)
+    // Note that they will not necessarily leave the state in FIFO, that will depend on the scheduling algorithm
+    output += "\nProcess State:\n";
+    output += "| NEW | READY | WAITING | RUNNING | TERMINATED |\n";
+    output += "|-----|-------|---------|---------|------------|";
+
+    // Collect PIDs for each state
+    std::vector<int> new_pids, ready_pids, waiting_pids, terminated_pids;
+    int running_pid = -1;
+
+    for (auto &job : job_list) {
+        if (job.state == NEW) {
+            new_pids.push_back(job.PID);
+        } else if (job.state == TERMINATED) {
+            terminated_pids.push_back(job.PID);
+        }
+    }
+    for (const auto &p : ready_queue) {
+        ready_pids.push_back(p.PID);
+    }
+    for (const auto &p : wait_queue) {
+        waiting_pids.push_back(p.PID);
+    }
+    if (running.state == RUNNING) {
+        running_pid = running.PID;
+    }
+
+    // Find max rows needed
+    // vector.size() returns size_t so we need to use that
+    size_t max_rows = std::max({new_pids.size(),
+                                ready_pids.size(),
+                                waiting_pids.size(),
+                                (size_t)(running_pid != -1 ? 1 : 0),
+                                terminated_pids.size()});
+    if (max_rows == 0) {max_rows = 1;} // At least one row
+
+    // Print rows
+    for (size_t i = 0; i < max_rows; i++) {
+        output += "\n|";
+
+        // NEW column
+        if (i < new_pids.size()) {
+            output += "  " + std::to_string(new_pids[i]) + (new_pids[i] < 10 ? "  |" : " |");
+        } else {
+            output += "  -  |";
+        }
+
+        // READY column
+        if (i < ready_pids.size()) {
+            output += "   " + std::to_string(ready_pids[i]) + (ready_pids[i] < 10 ? "   |" : "  |");
+        } else {
+            output += "   -   |";
+        }
+
+        // WAITING column
+        if (i < waiting_pids.size()) {
+            output += "    " + std::to_string(waiting_pids[i]) + (waiting_pids[i] < 10 ? "    |" : "   |");
+        }else {
+            output += "    -    |";
+        }
+
+        // RUNNING column
+        if (i == 0) {
+            if (running_pid != -1) {
+                output += "    " + std::to_string(running_pid) + (running_pid < 10 ? "    |" : "   |");
+            } else {
+                output += "    -    |";
+            }
+        } else {
+            output += "    -    |";
+        }
+
+        // TERMINATED column
+        if (i < terminated_pids.size()) {
+            output += "     " + std::to_string(terminated_pids[i]) + (terminated_pids[i] < 10 ? "      |" : "     |");
+        } else {
+            output += "     -      |";
+        }
+    }
+    output += "\n";
+
+    // Final table: Shows the usage of all partitions, as well as by which PID
+    output += "\nPartition Usage:\n";
+    output += "| Part | Size | Used | Unused | PID |\n";
+    output += "|------|------|------|--------|-----|\n";
+    for (int i = 0; i < 6; i++) {
+        const memory_partition &part = memory_paritions[i];
+        int pid = part.occupied;
+        unsigned int used = 0;
+        states proc_state = NOT_ASSIGNED;
+
+        if (pid != -1) {
+            for (size_t j = 0; j < job_list.size(); j++) {
+                if (job_list[j].PID == pid) {
+                    used = job_list[j].size;
+                    proc_state = job_list[j].state;
+                    break;
+                }
+            }
+        }
+
+        unsigned int unused = (pid == -1) ? part.size : (part.size > used ? part.size - used : 0);
+        // Build row without state
+        output += "|  " + std::to_string(part.partition_number) + "   |  " +
+                std::to_string(part.size) +
+                    (part.size < 10 ? "   |  " : "  |  ") +
+                std::to_string(used) +
+                    (used < 10 ? "   |   " : "  |   ") +
+                std::to_string(unused) +
+                    (unused < 10 ? "    | " : "   | ") +
+                (pid == -1 ? std::string("-1") : " " + std::to_string(pid)) +
+                    (pid == -1 || pid > 9 ? "  |\n" : "  |\n");
+    }
+
+    output += "\n" + std::string(70, '=') + "\n";
+
+    return output;
+}
+
+// Calculates and returns the scheduling metrics string
+inline std::string calculate_metrics(const std::vector<PCB>& list_processes,
+                                        const std::map<int, unsigned int>& completion_times,
+                                        const std::map<int, unsigned int>& first_run_times,
+                                        unsigned int current_time) {
+    unsigned int total_turnaround = 0;
+    unsigned int total_wait = 0;
+    unsigned int total_response = 0;
+    unsigned int num_processes = list_processes.size();
+
+    for (const auto& process : list_processes) {
+        unsigned int turnaround = completion_times.at(process.PID) - process.arrival_time;
+        unsigned int response = first_run_times.at(process.PID) - process.arrival_time;
+        unsigned int wait = turnaround - process.processing_time;
+
+        total_turnaround += turnaround;
+        total_response += response;
+        total_wait += wait;
+    }
+
+    double avg_turnaround = (double)total_turnaround / num_processes;
+    double avg_wait = (double)total_wait / num_processes;
+    double avg_response = (double)total_response / num_processes;
+    double throughput = (double)num_processes / current_time;
+
+    std::string metrics = "\n\n========== Scheduling Metrics ==========";
+    metrics += "\nThroughput:              " + std::to_string(throughput) + " processes/ms";
+    metrics += "\nAverage Turnaround Time: " + std::to_string(avg_turnaround) + " ms";
+    metrics += "\nAverage Wait Time:       " + std::to_string(avg_wait) + " ms";
+    metrics += "\nAverage Response Time:   " + std::to_string(avg_response) + " ms";
+    metrics += "\n========================================\n";
+    return metrics;
 }
 
 #endif
