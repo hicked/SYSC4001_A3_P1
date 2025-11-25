@@ -15,10 +15,13 @@ struct Event {
     states new_state;
 };
 
-// Build consolidated memory + transition report for one time tick (string concatenation version)
-std::string parseMemoryEvents(unsigned int current_time,
-                              const std::vector<Event>& transitions,
-                              const std::vector<PCB>& job_list) {
+// Build consolidated memory + transition and queue report for one time tick
+std::string parseEvents(unsigned int current_time,
+                        const std::vector<Event>& transitions,
+                        const std::vector<PCB>& job_list,
+                        const std::vector<PCB>& ready_queue,
+                        const std::vector<PCB>& wait_queue,
+                        const PCB& running) {
     if (transitions.empty()) return std::string();
 
     std::string output;
@@ -41,9 +44,84 @@ std::string parseMemoryEvents(unsigned int current_time,
                         t.new_state == TERMINATED ? "TERMINATED" : "NOT_ASSIGNED") + "\n";
     }
 
+    // Process State table
+    output += "\nProcess State:\n";
+    output += "| NEW | READY | WAITING | RUNNING | TERMINATED |\n";
+    output += "|-----|-------|---------|---------|------------|";
+
+    // Collect PIDs for each state
+    std::vector<int> new_pids, ready_pids, waiting_pids, terminated_pids;
+    int running_pid = -1;
+
+    for (const auto &job : job_list) {
+        if (job.state == NEW) {
+            new_pids.push_back(job.PID);
+        } else if (job.state == TERMINATED) {
+            terminated_pids.push_back(job.PID);
+        }
+    }
+    for (const auto &p : ready_queue) {
+        ready_pids.push_back(p.PID);
+    }
+    for (const auto &p : wait_queue) {
+        waiting_pids.push_back(p.PID);
+    }
+    if (running.state == RUNNING) {
+        running_pid = running.PID;
+    }
+
+    // Find max rows needed
+    size_t max_rows = std::max({new_pids.size(), ready_pids.size(), waiting_pids.size(), (size_t)(running_pid != -1 ? 1 : 0), terminated_pids.size()});
+    if (max_rows == 0) max_rows = 1; // At least one row to show dashes
+
+    // Print rows
+    for (size_t i = 0; i < max_rows; i++) {
+        output += "\n|";
+
+        // NEW column
+        if (i < new_pids.size()) {
+            output += "  " + std::to_string(new_pids[i]) + (new_pids[i] < 10 ? "  |" : " |");
+        } else {
+            output += "  -  |";
+        }
+
+        // READY column
+        if (i < ready_pids.size()) {
+            output += "   " + std::to_string(ready_pids[i]) + (ready_pids[i] < 10 ? "   |" : "  |");
+        } else {
+            output += "   -   |";
+        }
+
+        // WAITING column
+        if (i < waiting_pids.size()) {
+            output += "    " + std::to_string(waiting_pids[i]) + (waiting_pids[i] < 10 ? "    |" : "   |");
+        }else {
+            output += "    -    |";
+        }
+
+        // RUNNING column
+        if (i == 0) {
+            if (running_pid != -1) {
+                output += "    " + std::to_string(running_pid) + (running_pid < 10 ? "    |" : "   |");
+            } else {
+                output += "    -    |";
+            }
+        } else {
+            output += "    -    |";
+        }
+
+        // TERMINATED column
+        if (i < terminated_pids.size()) {
+            output += "     " + std::to_string(terminated_pids[i]) + (terminated_pids[i] < 10 ? "      |" : "     |");
+        } else {
+            output += "     -      |";
+        }
+    }
+    output += "\n";
+
     output += "\nPartition Usage:\n";
-    output += "| Part | Size | PID | Used | Unused |\n";
-    output += "|------|------|-----|------|--------|\n";
+    output += "| Part | Size | Used | Unused | PID |\n";
+    output += "|------|------|------|--------|-----|\n";
     for (int i = 0; i < 6; i++) {
         const memory_partition &part = memory_paritions[i];
         int pid = part.occupied;
@@ -57,14 +135,17 @@ std::string parseMemoryEvents(unsigned int current_time,
             }
         }
         unsigned int unused = (pid == -1) ? part.size : (part.size > used ? part.size - used : 0);
-        output += "| " + std::to_string(part.partition_number) +
-               "    |  " + std::to_string(part.size) +
-               (part.size < 10 ? "   | " : "  | ") +
-               (pid == -1 ? std::string("-1") : std::to_string(pid)) +
-               (pid == -1 || pid > 9 ? "  | " : "   | ") +
-               std::to_string(used) + (used < 10 ? "    | " : "   | ") +
-               std::to_string(unused) + (unused < 10 ? "      |\n" : "     |\n");
+        output += "|  " + std::to_string(part.partition_number) +
+               "   |  " + std::to_string(part.size) +
+               (part.size < 10 ? "   |  " : "  |  ") +
+               std::to_string(used) + (used < 10 ? "   |   " : "  |   ") +
+               std::to_string(unused) + (unused < 10 ? "    | " : "   | ") +
+               (pid == -1 ? std::string("-1") : " " + std::to_string(pid)) +
+               (pid == -1 || pid > 9 ? "  |\n" : "  |\n");
     }
+
+    output += "\n" + std::string(70, '=') + "\n";
+
     return output;
 }
 
@@ -74,6 +155,17 @@ void FCFS(std::vector<PCB> &ready_queue) {
                 ready_queue.end(),
                 []( const PCB &first, const PCB &second ){
                     return (first.arrival_time > second.arrival_time);
+                }
+            );
+}
+
+// Sort ready queue by priority (lower priority number = higher priority)
+void sort_by_priority(std::vector<PCB> &ready_queue) {
+    std::sort(
+                ready_queue.begin(),
+                ready_queue.end(),
+                []( const PCB &first, const PCB &second ){
+                    return (first.priority > second.priority); // Sort ascending (lowest number first)
                 }
             );
 }
@@ -106,18 +198,42 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
         std::vector<Event> memory_transitions;
 
         // 1. Admit new arrivals
+        bool new_arrival = false;
         for(auto &process : list_processes) {
             if (process.state == NOT_ASSIGNED && process.arrival_time <= current_time) {
+                // Mark process arrival (transition from NOT_ASSIGNED to NEW)
+                process.state = NEW;
+                memory_transitions.push_back({current_time, process.PID, NOT_ASSIGNED, NEW});
+
                 //if so, assign memory and put the process into the ready queue
                 if (assign_memory(process)) {
                     process.state = READY;  //Set the process state to READY
                     ready_queue.push_back(process); //Add the process to the ready queue
                     job_list.push_back(process); //Add it to the list of processes
+                    new_arrival = true;
 
+                    execution_status += print_exec_status(current_time, process.PID, NEW, READY);
+                    memory_transitions.push_back({current_time, process.PID, NEW, READY});
+                } else {
+                    // Failed to assign memory - add to job_list but keep in NEW state
+                    job_list.push_back(process);
+                }
+            } else if (process.state == NEW && process.arrival_time < current_time) {
+                // Try to assign memory to processes still waiting
+                if (assign_memory(process)) {
+                    process.state = READY;
+                    ready_queue.push_back(process);
+                    sync_queue(job_list, process);
+                    new_arrival = true;
                     execution_status += print_exec_status(current_time, process.PID, NEW, READY);
                     memory_transitions.push_back({current_time, process.PID, NEW, READY});
                 }
             }
+        }
+
+        // Sort ready queue by priority after new arrivals
+        if (new_arrival && !ready_queue.empty()) {
+            sort_by_priority(ready_queue);
         }
 
         // Update list_processes with states from job_list (keep them synced)
@@ -127,25 +243,34 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
         }
 
         // 2. Move completed I/Os back to ready
+        bool io_completed = false;
         for (int i = 0; i < wait_queue.size(); i++) {
             if (current_time - wait_queue[i].start_time >= wait_queue[i].io_duration) {
                 wait_queue[i].state = READY;
                 ready_queue.push_back(wait_queue[i]);
                 sync_queue(job_list, wait_queue[i]);
+                io_completed = true;
                 execution_status += print_exec_status(current_time, wait_queue[i].PID, WAITING, READY);
                 memory_transitions.push_back({current_time, wait_queue[i].PID, WAITING, READY});
                 wait_queue.erase(wait_queue.begin() + i);
             }
         }
 
+        // Sort ready queue by priority after I/O completions
+        if (io_completed && !ready_queue.empty()) {
+            sort_by_priority(ready_queue);
+        }
+
         // 3. Make sure CPU isn't idle before checking these things
         if (running.state == RUNNING) {
             unsigned int elapsed = current_time - running.start_time;
 
-            // Check for preemption
+            // Check for preemption only if new higher-priority process arrived or I/O completed
             bool preempted = false;
-            for (auto &process : ready_queue) {
-                if (process.priority > running.priority) {
+            if ((new_arrival || io_completed) && !ready_queue.empty()) {
+                // Check if highest priority process in ready queue has higher priority than running
+                // Lower priority number = higher priority, so use < instead of >
+                if (ready_queue.front().priority < running.priority) {
                     preempted = true;
                 }
             }
@@ -178,11 +303,10 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 running.remaining_time -= elapsed;
                 running.state = READY;
                 ready_queue.push_back(running);
+                sort_by_priority(ready_queue); // Re-sort after adding preempted process
                 sync_queue(job_list, running);
                 execution_status += print_exec_status(current_time, running.PID, RUNNING, READY);
                 memory_transitions.push_back({current_time, running.PID, RUNNING, READY});
-
-                // This might be wrong. we may need to check if it gets preempted in the same tick instead of setting to idle************************************
                 idle_CPU(running);
             }
         }
@@ -199,7 +323,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             memory_transitions.push_back({current_time, running.PID, READY, RUNNING});
         }
         if(!memory_transitions.empty()) {
-            memory_status += parseMemoryEvents(current_time, memory_transitions, job_list);
+            memory_status += parseEvents(current_time, memory_transitions, job_list, ready_queue, wait_queue, running);
         }
         current_time += 1;
     }
