@@ -74,6 +74,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 execution_status += print_exec_status(current_time, wait_queue[i].PID, WAITING, READY);
                 memory_transitions.push_back({current_time, wait_queue[i].PID, WAITING, READY});
                 wait_queue.erase(wait_queue.begin() + i);
+                i--;
             }
         }
 
@@ -109,10 +110,10 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
 
         // 5. Make sure CPU isn't idle before checking these things
         if (running.state == RUNNING) {
-            unsigned int elapsed = current_time - running.start_time;
+            unsigned int current_cpu_burst_time = current_time - running.start_time;
 
             // if process has completed
-            if (running.remaining_time <= elapsed) {
+            if (running.remaining_time <= current_cpu_burst_time) {
                 running.state = TERMINATED;
                 running.remaining_time = 0;
                 memory_paritions[running.partition_number - 1].occupied = -1;
@@ -123,9 +124,8 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 idle_CPU(running);
             }
             // if process needs to do I/O (check before quantum)
-            else if (running.io_freq > 0 && elapsed > 0 && elapsed % running.io_freq == 0) {
-                running.remaining_time -= elapsed;
-                running.start_time = current_time;
+            else if (running.io_freq > 0 && current_cpu_burst_time >= running.io_freq) {
+                running.remaining_time -= current_cpu_burst_time;
                 running.state = WAITING;
                 wait_queue.push_back(running);
                 sync_queue(job_list, running);
@@ -134,7 +134,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 idle_CPU(running);
             }
             // if process has exceeded its allowed time (quantum)
-            else if (elapsed >= QUANTUM) {
+            else if (current_cpu_burst_time >= QUANTUM) {
                 running.remaining_time -= QUANTUM;
                 running.state = READY;
                 ready_queue.push_back(running);
@@ -145,7 +145,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             }
             // if preempted by higher priority process
             else if (preempted) {
-                running.remaining_time -= elapsed;
+                running.remaining_time -= current_cpu_burst_time;
                 running.state = READY;
                 ready_queue.push_back(running);
                 sync_queue(job_list, running);

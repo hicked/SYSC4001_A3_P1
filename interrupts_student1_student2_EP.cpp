@@ -99,12 +99,17 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 execution_status += print_exec_status(current_time, wait_queue[i].PID, WAITING, READY);
                 memory_transitions.push_back({current_time, wait_queue[i].PID, WAITING, READY});
                 wait_queue.erase(wait_queue.begin() + i);
+                i--;
             }
         }
 
         // Sort ready queue by priority after I/O completions
         if (!ready_queue.empty()) {
-            sort_by_priority(ready_queue);
+            std::sort(ready_queue.begin(), ready_queue.end(),
+                [](const PCB &first, const PCB &second) {
+                    return first.priority < second.priority; // Lowest PID first
+                }
+            );
         }
         // Update list_processes with states from job_list (keep them synced)
         sync_queue(list_processes, running);
@@ -114,10 +119,10 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
 
         // 3. Make sure CPU isn't idle before checking these things
         if (running.state == RUNNING) {
-            unsigned int elapsed = current_time - running.start_time;
+            unsigned int current_cpu_burst_time = current_time - running.start_time;
 
             // if process has completed
-            if (running.remaining_time <= elapsed) {
+            if (running.remaining_time <= current_cpu_burst_time) {
                 running.state = TERMINATED;
                 running.remaining_time = 0;
                 completion_times[running.PID] = current_time;
@@ -129,10 +134,10 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 idle_CPU(running);
             }
             // if process needs to do I/O
-            else if (running.io_freq > 0 && elapsed > 0 && elapsed % running.io_freq == 0) {
-                running.remaining_time -= elapsed;
-                running.start_time = current_time;
+            else if (running.io_freq > 0 && current_cpu_burst_time >= running.io_freq) {
+                running.remaining_time -= running.io_freq;
                 running.state = WAITING;
+                running.start_time = current_time;
                 wait_queue.push_back(running);
                 sync_queue(job_list, running);
                 execution_status += print_exec_status(current_time, running.PID, RUNNING, WAITING);
@@ -143,13 +148,13 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
 
         // 4. If CPU is idle and has stuff in ready, start running next process
         if (running.state == NOT_ASSIGNED && !ready_queue.empty()) {
+            // Ready queue is already sorted by priority, so front() is highest priority
             running = ready_queue.front();
             ready_queue.erase(ready_queue.begin());
             running.start_time = current_time;
             running.state = RUNNING;
             sync_queue(job_list, running);
 
-            // Record first run time (response time calculation)
             if (first_run_times.find(running.PID) == first_run_times.end()) {
                 first_run_times[running.PID] = current_time;
             }

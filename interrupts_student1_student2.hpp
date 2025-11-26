@@ -350,7 +350,7 @@ std::string parseEvents(unsigned int current_time,
 
     // turn transition ENUM into string for printing
     for (auto &t : transitions) {
-        output += "|  " + std::to_string(t.pid) + "  | " +
+        output += (t.pid == -1 || t.pid > 9 ? "| " : "|  ") + std::to_string(t.pid) + "  | " +
             std::string(t.old_state == NEW ? "NEW" :
                         t.old_state == READY ? "READY" :
                         t.old_state == RUNNING ? "RUNNING" :
@@ -475,7 +475,8 @@ std::string parseEvents(unsigned int current_time,
                     (used < 10 ? "   |   " : "  |   ") +
                 std::to_string(unused) +
                     (unused < 10 ? "    | " : "   | ") +
-                (pid == -1 ? std::string("-1") : " " + std::to_string(pid)) +
+                (pid <= 9 && pid > -1 ? " " : "") +
+                (pid == -1 ? std::string("-1") : std::to_string(pid)) +
                     (pid == -1 || pid > 9 ? "  |\n" : "  |\n");
     }
 
