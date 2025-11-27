@@ -1,7 +1,7 @@
 /**
- * @file interrupts.hpp
- * @author Sasisekhar Govind
- * @brief template main.cpp file for Assignment 3 Part 1 of SYSC4001
+ * @file interrupts_101295764_101306299.hpp
+ * @author Antoine Hickey & Enzo Chen
+ * @brief Header file for os schedulers 4001
  *
  */
 
@@ -323,7 +323,9 @@ void idle_CPU(PCB &running) {
 }
 
 
-
+//========================================================================================
+//             CUSTOM FUNCTION FOR MEMORY AND TRANSITION ANALYSIS (BONUS)
+//========================================================================================
 // Transition record (per tick)
 struct Event {
     unsigned int time;
@@ -508,10 +510,10 @@ inline std::string calculate_metrics(const std::vector<PCB>& list_processes,
     double avg_turnaround = (double)total_turnaround / num_processes;
     double avg_wait = (double)total_wait / num_processes;
     double avg_response = (double)total_response / num_processes;
-    double throughput = (double)num_processes / current_time;
+    double throughput =  current_time/(double)num_processes;
 
     std::string metrics = "\n\n========== Scheduling Metrics ==========";
-    metrics += "\nThroughput:              " + std::to_string(throughput) + " processes/ms";
+    metrics += "\nThroughput:              " + std::to_string(throughput) + " ms/process";
     metrics += "\nAverage Turnaround Time: " + std::to_string(avg_turnaround) + " ms";
     metrics += "\nAverage Wait Time:       " + std::to_string(avg_wait) + " ms";
     metrics += "\nAverage Response Time:   " + std::to_string(avg_response) + " ms";

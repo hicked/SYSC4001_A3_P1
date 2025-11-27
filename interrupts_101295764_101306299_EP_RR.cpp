@@ -1,15 +1,15 @@
 /**
- * @file interrupts.cpp
- * @author Sasisekhar Govind
- * @brief template main.cpp file for Assignment 3 Part 1 of SYSC4001
+ * @file interrupts_101295764_101306299_EP_RR.cpp
+ * @author Antoine Hickey & Enzo Chen
+ * @brief Scheduler Simulator (EP_RR)
  *
  */
 
 
-#include "interrupts_student1_student2.hpp"
+#include "interrupts_101295764_101306299.hpp"
 #include<map>
 
-#define QUANTUM         100
+#define QUANTUM         2
 
 // Sort ready queue by priority (lower priority number = higher priority)
 void sort_by_priority(std::vector<PCB> &ready_queue) {
@@ -17,7 +17,7 @@ void sort_by_priority(std::vector<PCB> &ready_queue) {
         ready_queue.begin(),
         ready_queue.end(),
         [](const PCB &first, const PCB &second) {
-            return (first.priority > second.priority); // ascending: lowest number first
+            return (first.priority < second.priority); // ascending: lowest number first
         }
     );
 }
@@ -78,11 +78,6 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             }
         }
 
-        // Always sort ready queue by priority after arrivals and I/O completions
-        if (!ready_queue.empty()) {
-            sort_by_priority(ready_queue);
-        }
-
         // Update list_processes with states from job_list (keep them synced)
         sync_queue(list_processes, running);
         for (auto &job : job_list) {
@@ -97,18 +92,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             }
         }
 
-        // 4. If CPU is idle and has stuff in ready, start running next process
-        if (running.state == NOT_ASSIGNED && !ready_queue.empty()) {
-            running = ready_queue.front();
-            ready_queue.erase(ready_queue.begin());
-            running.start_time = current_time;
-            running.state = RUNNING;
-            sync_queue(job_list, running);
-            execution_status += print_exec_status(current_time, running.PID, READY, RUNNING);
-            memory_transitions.push_back({current_time, running.PID, READY, RUNNING});
-        }
-
-        // 5. Make sure CPU isn't idle before checking these things
+        // 4. Make sure CPU isn't idle before checking these things
         if (running.state == RUNNING) {
             unsigned int current_cpu_burst_time = current_time - running.start_time;
 
@@ -123,10 +107,22 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 memory_transitions.push_back({current_time, running.PID, RUNNING, TERMINATED});
                 idle_CPU(running);
             }
+
+            // if preempted by higher priority process
+            else if (preempted) {
+                running.remaining_time -= current_cpu_burst_time;
+                running.state = READY;
+                ready_queue.push_back(running);
+                sync_queue(job_list, running);
+                execution_status += print_exec_status(current_time, running.PID, RUNNING, READY);
+                memory_transitions.push_back({current_time, running.PID, RUNNING, READY});
+                idle_CPU(running);
+            }
             // if process needs to do I/O (check before quantum)
             else if (running.io_freq > 0 && current_cpu_burst_time >= running.io_freq) {
                 running.remaining_time -= current_cpu_burst_time;
                 running.state = WAITING;
+                running.start_time = current_time;
                 wait_queue.push_back(running);
                 sync_queue(job_list, running);
                 execution_status += print_exec_status(current_time, running.PID, RUNNING, WAITING);
@@ -143,17 +139,24 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 memory_transitions.push_back({current_time, running.PID, RUNNING, READY});
                 idle_CPU(running);
             }
-            // if preempted by higher priority process
-            else if (preempted) {
-                running.remaining_time -= current_cpu_burst_time;
-                running.state = READY;
-                ready_queue.push_back(running);
-                sync_queue(job_list, running);
-                execution_status += print_exec_status(current_time, running.PID, RUNNING, READY);
-                memory_transitions.push_back({current_time, running.PID, RUNNING, READY});
-                idle_CPU(running);
-            }
         }
+
+        // Always sort ready queue by priority after arrivals and I/O completions
+        if (!ready_queue.empty()) {
+            sort_by_priority(ready_queue);
+        }
+
+        // 5. If CPU is idle and has stuff in ready, start running next process
+        if (running.state == NOT_ASSIGNED && !ready_queue.empty()) {
+            running = ready_queue.front();
+            ready_queue.erase(ready_queue.begin());
+            running.start_time = current_time;
+            running.state = RUNNING;
+            sync_queue(job_list, running);
+            execution_status += print_exec_status(current_time, running.PID, READY, RUNNING);
+            memory_transitions.push_back({current_time, running.PID, READY, RUNNING});
+        }
+
         if(!memory_transitions.empty()) {
             memory_status += parseEvents(current_time, memory_transitions, job_list, ready_queue, wait_queue, running);
         }
@@ -165,6 +168,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
     execution_status += print_exec_footer();
 
     // Calculate and format metrics
+    current_time-=2;
     unsigned int total_turnaround = 0;
     unsigned int total_wait = 0;
     unsigned int total_response = 0;
@@ -199,10 +203,10 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
     double avg_turnaround = num_processes ? (double)total_turnaround / num_processes : 0.0;
     double avg_wait = num_processes ? (double)total_wait / num_processes : 0.0;
     double avg_response = num_processes ? (double)total_response / num_processes : 0.0;
-    double throughput = current_time ? (double)num_processes / current_time : 0.0;
+    double throughput = num_processes ? (double)(current_time)/num_processes : 0.0;
 
     std::string metrics = "\n\n========== Scheduling Metrics ==========";
-    metrics += "\nThroughput:              " + std::to_string(throughput) + " processes/ms";
+    metrics += "\nThroughput:              " + std::to_string(throughput) + " ms/process";
     metrics += "\nAverage Turnaround Time: " + std::to_string(avg_turnaround) + " ms";
     metrics += "\nAverage Wait Time:       " + std::to_string(avg_wait) + " ms";
     metrics += "\nAverage Response Time:   " + std::to_string(avg_response) + " ms";

@@ -20,14 +20,17 @@ fi
 
 # Compile each file with hardcoded output names
 if [[ "$1" == "--mac" ]]; then
-	g++ -g -std=c++17 -O0 -I . -o "$BIN_DIR/interrupts_EP" interrupts_student1_student2_EP.cpp
-	g++ -g -std=c++17 -O0 -I . -o "$BIN_DIR/interrupts_EP_RR" interrupts_student1_student2_EP_RR.cpp
-	g++ -g -std=c++17 -O0 -I . -o "$BIN_DIR/interrupts_RR" interrupts_student1_student2_RR.cpp
+	g++ -g -std=c++17 -O0 -I . -o "$BIN_DIR/interrupts_EP" interrupts_101295764_101306299_EP.cpp
+	echo "Built: $BIN_DIR/interrupts_EP"
+	g++ -g -std=c++17 -O0 -I . -o "$BIN_DIR/interrupts_EP_RR" interrupts_101295764_101306299_EP_RR.cpp
+	echo "Built: $BIN_DIR/interrupts_EP_RR"
+	g++ -g -std=c++17 -O0 -I . -o "$BIN_DIR/interrupts_RR" interrupts_101295764_101306299_RR.cpp
+	echo "Built: $BIN_DIR/interrupts_RR"
 else
-	g++ -g -O0 -I . -o "$BIN_DIR/interrupts_EP" interrupts_student1_student2_EP.cpp
-	g++ -g -O0 -I . -o "$BIN_DIR/interrupts_EP_RR" interrupts_student1_student2_EP_RR.cpp
-	g++ -g -O0 -I . -o "$BIN_DIR/interrupts_RR" interrupts_student1_student2_RR.cpp
+	g++ -g -O0 -I . -o "$BIN_DIR/interrupts_EP" interrupts_101295764_101306299_EP.cpp
+	echo "Built: $BIN_DIR/interrupts_EP"
+	g++ -g -O0 -I . -o "$BIN_DIR/interrupts_EP_RR" interrupts_101295764_101306299_EP_RR.cpp
+	echo "Built: $BIN_DIR/interrupts_EP_RR"
+	g++ -g -O0 -I . -o "$BIN_DIR/interrupts_RR" interrupts_101295764_101306299_RR.cpp
+	echo "Built: $BIN_DIR/interrupts_RR"
 fi
-echo "Built: $BIN_DIR/interrupts_EP"
-echo "Built: $BIN_DIR/interrupts_EP_RR"
-echo "Built: $BIN_DIR/interrupts_RR"

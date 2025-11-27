@@ -1,22 +1,30 @@
 /**
- * @file interrupts.cpp
- * @author Sasisekhar Govind
- * @brief template main.cpp file for Assignment 3 Part 1 of SYSC4001
+ * @file interrupts_101295764_101306299_EP.cpp
+ * @author Antoine Hickey & Enzo Chen
+ * @brief Scheduler Simulator (EP)
  *
  */
 
-#include "interrupts_student1_student2.hpp"
+#include "interrupts_101295764_101306299.hpp"
 #include<map>
 
-#define QUANTUM         100
-
-// not needed since we use FIFO vector with push back
 void FCFS(std::vector<PCB> &ready_queue) {
     std::sort(
                 ready_queue.begin(),
                 ready_queue.end(),
                 []( const PCB &first, const PCB &second ){
                     return (first.arrival_time > second.arrival_time);
+                }
+            );
+}
+
+// Sort ready queue by priority (lower priority number = higher priority)
+void sort_by_priority(std::vector<PCB> &ready_queue) {
+    std::sort(
+                ready_queue.begin(),
+                ready_queue.end(),
+                []( const PCB &first, const PCB &second ){
+                    return (first.priority < second.priority); // Sort ascending (lowest number first)
                 }
             );
 }
@@ -59,7 +67,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 process.state = NEW;
                 memory_transitions.push_back({current_time, process.PID, NOT_ASSIGNED, NEW});
 
-                // if so, assign memory and put the process into the ready queue
+                //if so, assign memory and put the process into the ready queue
                 if (assign_memory(process)) {
                     process.state = READY;  //Set the process state to READY
                     ready_queue.push_back(process); //Add the process to the ready queue
@@ -91,6 +99,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 execution_status += print_exec_status(current_time, wait_queue[i].PID, WAITING, READY);
                 memory_transitions.push_back({current_time, wait_queue[i].PID, WAITING, READY});
                 wait_queue.erase(wait_queue.begin() + i);
+                i--;
             }
         }
 
@@ -116,37 +125,33 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 memory_transitions.push_back({current_time, running.PID, RUNNING, TERMINATED});
                 idle_CPU(running);
             }
-            // if process needs to do I/O (check before quantum)
+            // if process needs to do I/O
             else if (running.io_freq > 0 && current_cpu_burst_time >= running.io_freq) {
-                running.remaining_time -= current_cpu_burst_time;
+                running.remaining_time -= running.io_freq;
                 running.state = WAITING;
+                running.start_time = current_time;
                 wait_queue.push_back(running);
                 sync_queue(job_list, running);
                 execution_status += print_exec_status(current_time, running.PID, RUNNING, WAITING);
                 memory_transitions.push_back({current_time, running.PID, RUNNING, WAITING});
                 idle_CPU(running);
             }
-            // if process has exceeded it's allowed time (quantum)
-            else if (current_cpu_burst_time >= QUANTUM) {
-                running.remaining_time -= QUANTUM;
-                running.state = READY;
-                ready_queue.push_back(running);
-                sync_queue(job_list, running);
-                execution_status += print_exec_status(current_time, running.PID, RUNNING, READY);
-                memory_transitions.push_back({current_time, running.PID, RUNNING, READY});
-                idle_CPU(running);
-            }
+        }
+
+        // Sort ready queue by priority after I/O completions
+        if (!ready_queue.empty()) {
+            sort_by_priority(ready_queue);
         }
 
         // 4. If CPU is idle and has stuff in ready, start running next process
         if (running.state == NOT_ASSIGNED && !ready_queue.empty()) {
+            // Ready queue is already sorted by priority, so front() is highest priority
             running = ready_queue.front();
             ready_queue.erase(ready_queue.begin());
             running.start_time = current_time;
             running.state = RUNNING;
             sync_queue(job_list, running);
 
-            // Record first run time (response time calculation)
             if (first_run_times.find(running.PID) == first_run_times.end()) {
                 first_run_times[running.PID] = current_time;
             }
@@ -154,7 +159,6 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             execution_status += print_exec_status(current_time, running.PID, READY, RUNNING);
             memory_transitions.push_back({current_time, running.PID, READY, RUNNING});
         }
-
         if(!memory_transitions.empty()) {
             memory_status += parseEvents(current_time, memory_transitions, job_list, ready_queue, wait_queue, running);
         }
@@ -163,7 +167,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
 
     //Close the output table
     execution_status += print_exec_footer();
-    execution_status += calculate_metrics(list_processes, completion_times, first_run_times, current_time);
+    execution_status += calculate_metrics(list_processes, completion_times, first_run_times, current_time-2);
 
     return std::make_tuple(execution_status, memory_status);
 }
