@@ -25,6 +25,7 @@ Each line in the input file should be:
 ```
 PID, size, arrival_time, burst_time, io_freq, io_duration, priority
 ```
+**Ensure to use this format, or you may experience unexpected behaviour or `Segmentation Faults`**
 
 ## Output
 - `execution.txt`:          Process state transitions and metrics

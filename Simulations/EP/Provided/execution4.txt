@@ -12,19 +12,13 @@
 |                10 | 10 |   RUNNING |   WAITING |
 |                13 | 10 |   WAITING |     READY |
 |                13 | 10 |     READY |   RUNNING |
-|                15 | 10 |   RUNNING |   WAITING |
-|                18 | 10 |   WAITING |     READY |
-|                18 | 10 |     READY |   RUNNING |
-|                20 | 10 |   RUNNING |   WAITING |
-|                23 | 10 |   WAITING |     READY |
-|                23 | 10 |     READY |   RUNNING |
-|                25 | 10 |   RUNNING |TERMINATED |
+|                14 | 10 |   RUNNING |TERMINATED |
 +------------------------------------------------+
 
 
 ========== Scheduling Metrics ==========
-Throughput:              12.500000 ms/process
-Average Turnaround Time: 15.000000 ms
+Throughput:              7.000000 ms/process
+Average Turnaround Time: 9.500000 ms
 Average Wait Time:       1.500000 ms
 Average Response Time:   0.000000 ms
 ========================================
