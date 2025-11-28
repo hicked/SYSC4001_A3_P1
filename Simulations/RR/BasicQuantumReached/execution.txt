@@ -3,28 +3,12 @@
 +------------------------------------------------+
 |                 0 | 10 |       NEW |     READY |
 |                 0 | 10 |     READY |   RUNNING |
-|                 1 | 10 |   RUNNING |     READY |
-|                 1 | 10 |     READY |   RUNNING |
-|                 2 | 10 |   RUNNING |     READY |
-|                 2 | 10 |     READY |   RUNNING |
 |                 3 |  1 |       NEW |     READY |
-|                 3 | 10 |   RUNNING |     READY |
-|                 3 |  1 |     READY |   RUNNING |
-|                 4 |  1 |   RUNNING |     READY |
-|                 4 | 10 |     READY |   RUNNING |
 |                 5 | 10 |   RUNNING |     READY |
 |                 5 |  1 |     READY |   RUNNING |
-|                 6 |  1 |   RUNNING |     READY |
-|                 6 | 10 |     READY |   RUNNING |
-|                 7 | 10 |   RUNNING |     READY |
-|                 7 |  1 |     READY |   RUNNING |
-|                 8 |  1 |   RUNNING |     READY |
-|                 8 | 10 |     READY |   RUNNING |
-|                 9 | 10 |   RUNNING |TERMINATED |
-|                 9 |  1 |     READY |   RUNNING |
 |                10 |  1 |   RUNNING |     READY |
-|                10 |  1 |     READY |   RUNNING |
-|                11 |  1 |   RUNNING |     READY |
+|                10 | 10 |     READY |   RUNNING |
+|                11 | 10 |   RUNNING |TERMINATED |
 |                11 |  1 |     READY |   RUNNING |
 |                12 |  1 |   RUNNING |TERMINATED |
 +------------------------------------------------+
@@ -32,7 +16,7 @@
 
 ========== Scheduling Metrics ==========
 Throughput:              6.000000 ms/process
-Average Turnaround Time: 9.000000 ms
-Average Wait Time:       3.000000 ms
-Average Response Time:   0.000000 ms
+Average Turnaround Time: 10.000000 ms
+Average Wait Time:       4.000000 ms
+Average Response Time:   1.000000 ms
 ========================================
