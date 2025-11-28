@@ -25,6 +25,6 @@
 ========== Scheduling Metrics ==========
 Throughput:              12.500000 ms/process
 Average Turnaround Time: 15.000000 ms
-Average Wait Time:       7.500000 ms
+Average Wait Time:       1.500000 ms
 Average Response Time:   0.000000 ms
 ========================================

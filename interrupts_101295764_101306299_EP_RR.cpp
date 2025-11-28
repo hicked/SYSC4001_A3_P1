@@ -9,7 +9,7 @@
 #include "interrupts_101295764_101306299.hpp"
 #include<map>
 
-#define QUANTUM         2
+#define QUANTUM         5
 
 // Sort ready queue by priority (lower priority number = higher priority)
 void sort_by_priority(std::vector<PCB> &ready_queue) {
@@ -40,10 +40,12 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
 
     std::string execution_status;
     std::string memory_status;
-
-    //make the output table (the header row)
     execution_status = print_exec_header();
 
+    // For metrics, we need completion and first run times
+    std::map<int, unsigned int> completion_times;
+    std::map<int, unsigned int> first_run_times;
+    std::map<int, unsigned int> waiting_times; // Track time spent in READY queue
 
     while(!all_process_terminated(list_processes)) {
         std::vector<Event> memory_transitions;
@@ -52,13 +54,41 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
         bool new_arrival = false;
         for(auto &process : list_processes) {
             if (process.state == NOT_ASSIGNED && process.arrival_time <= current_time) {
+                // Mark process arrival (transition from NOT_ASSIGNED to NEW)
+                process.state = NEW;
+                memory_transitions.push_back({current_time, process.PID, NOT_ASSIGNED, NEW});
+
+                //if so, assign memory and put the process into the ready queue
                 if (assign_memory(process)) {
-                    process.state = READY;
-                    ready_queue.push_back(process);
-                    job_list.push_back(process);
+                    process.state = READY;  //Set the process state to READY
+                    ready_queue.push_back(process); //Add the process to the ready queue
+                    job_list.push_back(process); //Add it to the list of processes
                     new_arrival = true;
+
                     execution_status += print_exec_status(current_time, process.PID, NEW, READY);
                     memory_transitions.push_back({current_time, process.PID, NEW, READY});
+
+                    // Initialize waiting time for this PID
+                    if (waiting_times.find(process.PID) == waiting_times.end()) {
+                        waiting_times[process.PID] = 0;
+                    }
+                } else {
+                    // Failed to assign memory - add to job_list but keep in NEW state
+                    job_list.push_back(process);
+                }
+            } else if (process.state == NEW && process.arrival_time < current_time) {
+                // Try to assign memory to processes still waiting
+                if (assign_memory(process)) {
+                    new_arrival = true;
+                    process.state = READY;
+                    ready_queue.push_back(process);
+                    sync_queue(job_list, process);
+                    execution_status += print_exec_status(current_time, process.PID, NEW, READY);
+                    memory_transitions.push_back({current_time, process.PID, NEW, READY});
+                    // Initialize waiting time for this PID
+                    if (waiting_times.find(process.PID) == waiting_times.end()) {
+                        waiting_times[process.PID] = 0;
+                    }
                 }
             }
         }
@@ -105,20 +135,10 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 sync_queue(job_list, running);
                 execution_status += print_exec_status(current_time, running.PID, RUNNING, TERMINATED);
                 memory_transitions.push_back({current_time, running.PID, RUNNING, TERMINATED});
+                completion_times[running.PID] = current_time;
                 idle_CPU(running);
             }
-
-            // if preempted by higher priority process
-            else if (preempted) {
-                running.remaining_time -= current_cpu_burst_time;
-                running.state = READY;
-                ready_queue.push_back(running);
-                sync_queue(job_list, running);
-                execution_status += print_exec_status(current_time, running.PID, RUNNING, READY);
-                memory_transitions.push_back({current_time, running.PID, RUNNING, READY});
-                idle_CPU(running);
-            }
-            // if process needs to do I/O (check before quantum)
+            // if process needs to do I/O
             else if (running.io_freq > 0 && current_cpu_burst_time >= running.io_freq) {
                 running.remaining_time -= current_cpu_burst_time;
                 running.state = WAITING;
@@ -127,6 +147,16 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 sync_queue(job_list, running);
                 execution_status += print_exec_status(current_time, running.PID, RUNNING, WAITING);
                 memory_transitions.push_back({current_time, running.PID, RUNNING, WAITING});
+                idle_CPU(running);
+            }
+            // if preempted by higher priority process
+            else if (preempted) {
+                running.remaining_time -= current_cpu_burst_time;
+                running.state = READY;
+                ready_queue.push_back(running);
+                sync_queue(job_list, running);
+                execution_status += print_exec_status(current_time, running.PID, RUNNING, READY);
+                memory_transitions.push_back({current_time, running.PID, RUNNING, READY});
                 idle_CPU(running);
             }
             // if process has exceeded its allowed time (quantum)
@@ -155,6 +185,14 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             sync_queue(job_list, running);
             execution_status += print_exec_status(current_time, running.PID, READY, RUNNING);
             memory_transitions.push_back({current_time, running.PID, READY, RUNNING});
+            // Set first run time only if not already set
+            if (first_run_times.find(running.PID) == first_run_times.end()) {
+                first_run_times[running.PID] = current_time;
+            }
+        }
+
+        for (const auto& pcb : ready_queue) {
+            waiting_times[pcb.PID]++;
         }
 
         if(!memory_transitions.empty()) {
@@ -163,56 +201,9 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
         current_time += 1;
     }
 
-
     //Close the output table
     execution_status += print_exec_footer();
-
-    // Calculate and format metrics
-    current_time-=2;
-    unsigned int total_turnaround = 0;
-    unsigned int total_wait = 0;
-    unsigned int total_response = 0;
-    unsigned int num_processes = list_processes.size();
-
-    // For metrics, we need completion and first run times
-    std::map<int, unsigned int> completion_times;
-    std::map<int, unsigned int> first_run_times;
-    for (const auto& job : job_list) {
-        if (job.state == TERMINATED) {
-            completion_times[job.PID] = current_time;
-        }
-    }
-    for (const auto& job : job_list) {
-        if (job.state == RUNNING || job.state == READY || job.state == WAITING || job.state == TERMINATED) {
-            if (first_run_times.find(job.PID) == first_run_times.end()) {
-                first_run_times[job.PID] = job.start_time;
-            }
-        }
-    }
-    for (const auto& process : job_list) {
-        if (completion_times.find(process.PID) != completion_times.end() && first_run_times.find(process.PID) != first_run_times.end()) {
-            unsigned int turnaround = completion_times[process.PID] - process.arrival_time;
-            unsigned int response = first_run_times[process.PID] - process.arrival_time;
-            unsigned int wait = turnaround - process.processing_time;
-            total_turnaround += turnaround;
-            total_response += response;
-            total_wait += wait;
-        }
-    }
-
-    double avg_turnaround = num_processes ? (double)total_turnaround / num_processes : 0.0;
-    double avg_wait = num_processes ? (double)total_wait / num_processes : 0.0;
-    double avg_response = num_processes ? (double)total_response / num_processes : 0.0;
-    double throughput = num_processes ? (double)(current_time)/num_processes : 0.0;
-
-    std::string metrics = "\n\n========== Scheduling Metrics ==========";
-    metrics += "\nThroughput:              " + std::to_string(throughput) + " ms/process";
-    metrics += "\nAverage Turnaround Time: " + std::to_string(avg_turnaround) + " ms";
-    metrics += "\nAverage Wait Time:       " + std::to_string(avg_wait) + " ms";
-    metrics += "\nAverage Response Time:   " + std::to_string(avg_response) + " ms";
-    metrics += "\n========================================\n";
-
-    execution_status += metrics;
+    execution_status += calculate_metrics(list_processes, completion_times, first_run_times, waiting_times, current_time-2);
 
     return std::make_tuple(execution_status, memory_status);
 }

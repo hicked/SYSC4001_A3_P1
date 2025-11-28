@@ -1,0 +1,84 @@
++------------------------------------------------+
+|Time of Transition |PID | Old State | New State |
++------------------------------------------------+
+|                 0 | 10 |       NEW |     READY |
+|                 0 | 10 |     READY |   RUNNING |
+|                 1 | 10 |   RUNNING |     READY |
+|                 1 | 10 |     READY |   RUNNING |
+|                 2 | 10 |   RUNNING |     READY |
+|                 2 | 10 |     READY |   RUNNING |
+|                 3 |  1 |       NEW |     READY |
+|                 3 | 10 |   RUNNING |     READY |
+|                 3 |  1 |     READY |   RUNNING |
+|                 4 |  1 |   RUNNING |     READY |
+|                 4 | 10 |     READY |   RUNNING |
+|                 5 | 10 |   RUNNING |     READY |
+|                 5 |  1 |     READY |   RUNNING |
+|                 6 |  1 |   RUNNING |     READY |
+|                 6 | 10 |     READY |   RUNNING |
+|                 7 | 10 |   RUNNING |     READY |
+|                 7 |  1 |     READY |   RUNNING |
+|                 8 |  1 |   RUNNING |     READY |
+|                 8 | 10 |     READY |   RUNNING |
+|                 9 | 10 |   RUNNING |     READY |
+|                 9 |  1 |     READY |   RUNNING |
+|                10 |  1 |   RUNNING |     READY |
+|                10 | 10 |     READY |   RUNNING |
+|                11 | 10 |   RUNNING |     READY |
+|                11 |  1 |     READY |   RUNNING |
+|                12 |  1 |   RUNNING |     READY |
+|                12 | 10 |     READY |   RUNNING |
+|                13 | 10 |   RUNNING |     READY |
+|                13 |  1 |     READY |   RUNNING |
+|                14 |  1 |   RUNNING |     READY |
+|                14 | 10 |     READY |   RUNNING |
+|                15 | 10 |   RUNNING |     READY |
+|                15 |  1 |     READY |   RUNNING |
+|                16 |  1 |   RUNNING |     READY |
+|                16 | 10 |     READY |   RUNNING |
+|                17 | 10 |   RUNNING |     READY |
+|                17 |  1 |     READY |   RUNNING |
+|                18 |  1 |   RUNNING |     READY |
+|                18 | 10 |     READY |   RUNNING |
+|                19 | 10 |   RUNNING |     READY |
+|                19 |  1 |     READY |   RUNNING |
+|                20 |  1 |   RUNNING |     READY |
+|                20 | 10 |     READY |   RUNNING |
+|                21 | 10 |   RUNNING |     READY |
+|                21 |  1 |     READY |   RUNNING |
+|                22 |  1 |   RUNNING |     READY |
+|                22 | 10 |     READY |   RUNNING |
+|                23 | 10 |   RUNNING |     READY |
+|                23 |  1 |     READY |   RUNNING |
+|                24 |  1 |   RUNNING |     READY |
+|                24 | 10 |     READY |   RUNNING |
+|                25 | 10 |   RUNNING |     READY |
+|                25 |  1 |     READY |   RUNNING |
+|                26 |  1 |   RUNNING |     READY |
+|                26 | 10 |     READY |   RUNNING |
+|                27 | 10 |   RUNNING |     READY |
+|                27 |  1 |     READY |   RUNNING |
+|                28 |  1 |   RUNNING |     READY |
+|                28 | 10 |     READY |   RUNNING |
+|                29 | 10 |   RUNNING |     READY |
+|                29 |  1 |     READY |   RUNNING |
+|                30 |  1 |   RUNNING |     READY |
+|                30 | 10 |     READY |   RUNNING |
+|                31 | 10 |   RUNNING |     READY |
+|                31 |  1 |     READY |   RUNNING |
+|                32 |  1 |   RUNNING |TERMINATED |
+|                32 | 10 |     READY |   RUNNING |
+|                33 | 10 |   RUNNING |     READY |
+|                33 | 10 |     READY |   RUNNING |
+|                34 | 10 |   RUNNING |     READY |
+|                34 | 10 |     READY |   RUNNING |
+|                35 | 10 |   RUNNING |TERMINATED |
++------------------------------------------------+
+
+
+========== Scheduling Metrics ==========
+Throughput:              17.500000 ms/process
+Average Turnaround Time: 32.000000 ms
+Average Wait Time:       14.500000 ms
+Average Response Time:   0.000000 ms
+========================================

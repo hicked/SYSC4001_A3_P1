@@ -3,16 +3,16 @@
 +------------------------------------------------+
 |                 0 | 10 |       NEW |     READY |
 |                 0 | 10 |     READY |   RUNNING |
-|                 5 | 10 |   RUNNING |   WAITING |
-|                 6 | 10 |   WAITING |     READY |
-|                 6 | 10 |     READY |   RUNNING |
-|                11 | 10 |   RUNNING |TERMINATED |
+|                 3 |  1 |       NEW |     READY |
+|                20 | 10 |   RUNNING |TERMINATED |
+|                20 |  1 |     READY |   RUNNING |
+|                35 |  1 |   RUNNING |TERMINATED |
 +------------------------------------------------+
 
 
 ========== Scheduling Metrics ==========
-Throughput:              11.000000 ms/process
-Average Turnaround Time: 11.000000 ms
-Average Wait Time:       0.000000 ms
-Average Response Time:   0.000000 ms
+Throughput:              17.500000 ms/process
+Average Turnaround Time: 26.000000 ms
+Average Wait Time:       8.500000 ms
+Average Response Time:   8.500000 ms
 ========================================

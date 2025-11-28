@@ -488,29 +488,33 @@ std::string parseEvents(unsigned int current_time,
 }
 
 // Calculates and returns the scheduling metrics string
-inline std::string calculate_metrics(const std::vector<PCB>& list_processes,
-                                        const std::map<int, unsigned int>& completion_times,
-                                        const std::map<int, unsigned int>& first_run_times,
-                                        unsigned int current_time) {
+inline std::string calculate_metrics(
+    const std::vector<PCB>& list_processes,
+    const std::map<int, unsigned int>& completion_times,
+    const std::map<int, unsigned int>& first_run_times,
+    const std::map<int, unsigned int>& waiting_times,
+    unsigned int current_time) {
+
     unsigned int total_turnaround = 0;
     unsigned int total_wait = 0;
     unsigned int total_response = 0;
     unsigned int num_processes = list_processes.size();
 
     for (const auto& process : list_processes) {
-        unsigned int turnaround = completion_times.at(process.PID) - process.arrival_time;
-        unsigned int response = first_run_times.at(process.PID) - process.arrival_time;
-        unsigned int wait = turnaround - process.processing_time;
-
-        total_turnaround += turnaround;
-        total_response += response;
-        total_wait += wait;
+        if (completion_times.find(process.PID) != completion_times.end() && first_run_times.find(process.PID) != first_run_times.end()) {
+            unsigned int turnaround = completion_times.at(process.PID) - process.arrival_time;
+            unsigned int response = first_run_times.at(process.PID) - process.arrival_time;
+            unsigned int wait = waiting_times.at(process.PID); // Use tracked waiting time
+            total_turnaround += turnaround;
+            total_response += response;
+            total_wait += wait;
+        }
     }
 
-    double avg_turnaround = (double)total_turnaround / num_processes;
-    double avg_wait = (double)total_wait / num_processes;
-    double avg_response = (double)total_response / num_processes;
-    double throughput =  current_time/(double)num_processes;
+    double avg_turnaround = num_processes ? (double)total_turnaround / num_processes : 0.0;
+    double avg_wait = num_processes ? (double)total_wait / num_processes : 0.0;
+    double avg_response = num_processes ? (double)total_response / num_processes : 0.0;
+    double throughput = num_processes ? (double)(current_time)/num_processes : 0.0;
 
     std::string metrics = "\n\n========== Scheduling Metrics ==========";
     metrics += "\nThroughput:              " + std::to_string(throughput) + " ms/process";

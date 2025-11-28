@@ -8,7 +8,7 @@
 #include "interrupts_101295764_101306299.hpp"
 #include<map>
 
-#define QUANTUM         2
+#define QUANTUM         5
 
 // not needed since we use FIFO vector with push back
 void FCFS(std::vector<PCB> &ready_queue) {
@@ -36,6 +36,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
     // Track metrics for each process
     std::map<int, unsigned int> completion_times;
     std::map<int, unsigned int> first_run_times;
+    std::map<int, unsigned int> waiting_times;
 
     //Initialize an empty running process (for when when CPU is idle)
     // Need to do this at the end as well
@@ -67,6 +68,10 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
 
                     execution_status += print_exec_status(current_time, process.PID, NEW, READY);
                     memory_transitions.push_back({current_time, process.PID, NEW, READY});
+                    // Initialize waiting time for this PID
+                    if (waiting_times.find(process.PID) == waiting_times.end()) {
+                        waiting_times[process.PID] = 0;
+                    }
                 } else {
                     // Failed to assign memory - add to job_list but keep in NEW state
                     job_list.push_back(process);
@@ -79,6 +84,10 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                     sync_queue(job_list, process);
                     execution_status += print_exec_status(current_time, process.PID, NEW, READY);
                     memory_transitions.push_back({current_time, process.PID, NEW, READY});
+                    // Initialize waiting time for this PID
+                    if (waiting_times.find(process.PID) == waiting_times.end()) {
+                        waiting_times[process.PID] = 0;
+                    }
                 }
             }
         }
@@ -157,6 +166,10 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
             memory_transitions.push_back({current_time, running.PID, READY, RUNNING});
         }
 
+        for (const auto& pcb : ready_queue) {
+            waiting_times[pcb.PID]++;
+        }
+
         if(!memory_transitions.empty()) {
             memory_status += parseEvents(current_time, memory_transitions, job_list, ready_queue, wait_queue, running);
         }
@@ -165,7 +178,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
 
     //Close the output table
     execution_status += print_exec_footer();
-    execution_status += calculate_metrics(list_processes, completion_times, first_run_times, current_time-2);
+    execution_status += calculate_metrics(list_processes, completion_times, first_run_times, waiting_times, current_time-2);
 
     return std::make_tuple(execution_status, memory_status);
 }

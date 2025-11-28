@@ -1,0 +1,24 @@
++------------------------------------------------+
+|Time of Transition |PID | Old State | New State |
++------------------------------------------------+
+|                 0 |  2 |       NEW |     READY |
+|                 0 |  2 |     READY |   RUNNING |
+|                 5 |  1 |       NEW |     READY |
+|                 5 |  2 |   RUNNING |     READY |
+|                 5 |  1 |     READY |   RUNNING |
+|                10 |  1 |   RUNNING |TERMINATED |
+|                10 |  2 |     READY |   RUNNING |
+|                15 |  2 |   RUNNING |     READY |
+|                15 |  2 |     READY |   RUNNING |
+|                20 |  2 |   RUNNING |     READY |
+|                20 |  2 |     READY |   RUNNING |
+|                25 |  2 |   RUNNING |TERMINATED |
++------------------------------------------------+
+
+
+========== Scheduling Metrics ==========
+Throughput:              12.500000 ms/process
+Average Turnaround Time: 15.000000 ms
+Average Wait Time:       2.500000 ms
+Average Response Time:   0.000000 ms
+========================================
