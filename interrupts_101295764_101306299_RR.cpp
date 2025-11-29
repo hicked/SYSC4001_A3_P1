@@ -37,6 +37,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
     std::map<int, unsigned int> completion_times;
     std::map<int, unsigned int> first_run_times;
     std::map<int, unsigned int> waiting_times;
+    std::map<int, unsigned int> total_cpu_time; // Track total CPU time for each process
 
     //Initialize an empty running process (for when when CPU is idle)
     // Need to do this at the end as well
@@ -113,6 +114,8 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
         // 3. Make sure CPU isn't idle before checking these things
         if (running.state == RUNNING) {
             unsigned int current_cpu_burst_time = current_time - running.start_time;
+            // Track total CPU time for this process
+            total_cpu_time[running.PID] += 1;
 
             // if process has completed
             if (running.remaining_time <= current_cpu_burst_time) {
@@ -126,9 +129,9 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                 memory_transitions.push_back({current_time, running.PID, RUNNING, TERMINATED});
                 idle_CPU(running);
             }
-            // if process needs to do I/O
-            else if (running.io_freq > 0 && current_cpu_burst_time >= running.io_freq) {
-                running.remaining_time -= running.io_freq;
+            // if process needs to do I/O (based on total CPU time)
+            else if (running.io_freq > 0 && total_cpu_time[running.PID] != 0 && total_cpu_time[running.PID] % running.io_freq == 0) {
+                running.remaining_time -= current_cpu_burst_time;
                 running.state = WAITING;
                 running.start_time = current_time; // This is used to track when I/O starts
                 wait_queue.push_back(running);
