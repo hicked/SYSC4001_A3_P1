@@ -9,7 +9,7 @@
 #include "interrupts_101295764_101306299.hpp"
 #include<map>
 
-#define QUANTUM         5
+#define QUANTUM         100
 
 // Sort ready queue by priority (lower priority number = higher priority)
 void sort_by_priority(std::vector<PCB> &ready_queue) {
