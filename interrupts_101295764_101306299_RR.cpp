@@ -8,7 +8,7 @@
 #include "interrupts_101295764_101306299.hpp"
 #include<map>
 
-#define QUANTUM         1
+#define QUANTUM         100
 
 // not needed since we use FIFO vector with push back
 void FCFS(std::vector<PCB> &ready_queue) {
