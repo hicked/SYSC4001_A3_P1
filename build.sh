@@ -15,10 +15,7 @@ if [[ "$1" == "--help" ]]; then
 	exit 0
 fi
 
-# Compile all .cpp files
-
-
-# Compile each file with hardcoded output names
+# Compile each file
 if [[ "$1" == "--mac" ]]; then
 	g++ -g -std=c++17 -O0 -I . -o "$BIN_DIR/interrupts_EP" interrupts_101295764_101306299_EP.cpp
 	echo "Built: $BIN_DIR/interrupts_EP"
