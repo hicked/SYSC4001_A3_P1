@@ -12,6 +12,7 @@
 #define QUANTUM         100
 
 // Sort ready queue by priority (lower priority number = higher priority)
+// We inverted this function since we used front instead of back
 void sort_by_priority(std::vector<PCB> &ready_queue) {
     std::sort(
         ready_queue.begin(),
