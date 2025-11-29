@@ -248,6 +248,7 @@ bool assign_memory(PCB &program) {
 }
 
 //Free a memory partition
+// Did not use this, we did it explicitly
 bool free_memory(PCB &program){
     for(int i = 5; i >= 0; i--) {
         if(program.PID == memory_paritions[i].occupied) {
@@ -293,6 +294,7 @@ bool all_process_terminated(std::vector<PCB> processes) {
 }
 
 //Terminates a given process
+// Not used either, we did it explicitly
 void terminate_process(PCB &running, std::vector<PCB> &job_queue) {
     running.remaining_time = 0;
     running.state = TERMINATED;
@@ -301,6 +303,7 @@ void terminate_process(PCB &running, std::vector<PCB> &job_queue) {
 }
 
 //set the process in the ready queue to runnning
+// Not used either, we did it explicitly
 void run_process(PCB &running, std::vector<PCB> &job_queue, std::vector<PCB> &ready_queue, unsigned int current_time) {
     running = ready_queue.back();
     ready_queue.pop_back();
@@ -324,7 +327,7 @@ void idle_CPU(PCB &running) {
 
 
 //========================================================================================
-//             CUSTOM FUNCTION FOR MEMORY AND TRANSITION ANALYSIS (BONUS)
+//               CUSTOM FUNCTION (LIKE FOR MEMORY AND TRANSITION ANALYSIS)
 //========================================================================================
 // Transition record (per tick)
 struct Event {

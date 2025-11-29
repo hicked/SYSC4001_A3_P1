@@ -8,17 +8,8 @@
 #include "interrupts_101295764_101306299.hpp"
 #include<map>
 
-void FCFS(std::vector<PCB> &ready_queue) {
-    std::sort(
-                ready_queue.begin(),
-                ready_queue.end(),
-                []( const PCB &first, const PCB &second ){
-                    return (first.arrival_time > second.arrival_time);
-                }
-            );
-}
-
 // Sort ready queue by priority (lower priority number = higher priority)
+// We inverted this function since we used from instead of back
 void sort_by_priority(std::vector<PCB> &ready_queue) {
     std::sort(
                 ready_queue.begin(),

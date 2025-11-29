@@ -10,8 +10,8 @@
 
 #define QUANTUM         100
 
-// not needed since we use FIFO vector with push back
-void FCFS(std::vector<PCB> &ready_queue) {
+// not needed since we use FIFO vector with push back (we used front instead of back)
+/*void FCFS(std::vector<PCB> &ready_queue) {
     std::sort(
                 ready_queue.begin(),
                 ready_queue.end(),
@@ -19,7 +19,7 @@ void FCFS(std::vector<PCB> &ready_queue) {
                     return (first.arrival_time > second.arrival_time);
                 }
             );
-}
+}*/
 
 std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_processes) {
 
