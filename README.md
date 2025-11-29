@@ -34,6 +34,7 @@ PID, size, arrival_time, burst_time, io_freq, io_duration, priority
 ## Notes/Assumptions
 - Priority is a separate input (not PID-based)
 - Metrics are tracked during execution, and then calculated (see header) at the end of each simulation (output in `execution.txt`)
+- Ignored any context switch times
 - Below is the approach we took in the case of race conditions. The code will execute in this order, and therefore the first check has higher priority than the last.
 
 For Running Processes:
