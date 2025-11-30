@@ -6,7 +6,7 @@
  */
 
 #include "interrupts_101295764_101306299.hpp"
-#include<map>
+#include <map>
 
 #define QUANTUM         100
 

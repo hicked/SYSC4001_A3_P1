@@ -9,6 +9,19 @@ This project simulates process scheduling algorithms for an operating system, in
 - Calculates and outputs scheduling metrics
 - Handles I/O and priority-based scheduling
 
+## Assumptions
+- Priority is a separate input (not PID-based)
+- Metrics are tracked during execution, and then calculated (see header) at the end of each simulation (output in `execution.txt`)
+- Ignored any context switch times
+- simulations was used to record input/output instead of input_files and output_files since it was more organized this way
+- Below is the approach we took in the case of race conditions. The code will execute in this order, and therefore the first check has higher priority than the last.
+
+For Running Processes:
+1. Check if the currently running process is finished
+2. Check if the currently running process needs to do I/O
+3. Check if it has been preempted by another higher priority process
+4. Check if quantum has been reached
+
 ## Usage
 1. Build executables using `build.sh`:
 	```bash
@@ -30,15 +43,3 @@ PID, size, arrival_time, burst_time, io_freq, io_duration, priority
 ## Output
 - `execution.txt`:          Process state transitions and metrics
 - `memory_analysis.txt`:    Memory and event analysis per tick (see header)
-
-## Notes/Assumptions
-- Priority is a separate input (not PID-based)
-- Metrics are tracked during execution, and then calculated (see header) at the end of each simulation (output in `execution.txt`)
-- Ignored any context switch times
-- Below is the approach we took in the case of race conditions. The code will execute in this order, and therefore the first check has higher priority than the last.
-
-For Running Processes:
-1. Check if the currently running process is finished
-2. Check if the currently running process needs to do I/O
-3. Check if it has been preempted by another higher priority process
-4. Check if quantum has been reached

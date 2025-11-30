@@ -7,18 +7,18 @@
 
 
 #include "interrupts_101295764_101306299.hpp"
-#include<map>
+#include <map>
 
 #define QUANTUM         100
 
 // Sort ready queue by priority (lower priority number = higher priority)
-// We inverted this function since we used front instead of back
+// We inverted this function since we used front instead of back when putting the next process into runnin
 void sort_by_priority(std::vector<PCB> &ready_queue) {
     std::sort(
         ready_queue.begin(),
         ready_queue.end(),
         [](const PCB &first, const PCB &second) {
-            return (first.priority < second.priority); // ascending: lowest number first
+            return (first.priority < second.priority);
         }
     );
 }
@@ -39,11 +39,12 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
     // Need to do this at the end as well
     idle_CPU(running);
 
+    // Accumulate output
     std::string execution_status;
     std::string memory_status;
     execution_status = print_exec_header();
 
-    // For metrics, we need completion and first run times
+    // For metrics, we need to track some data
     std::map<int, unsigned int> completion_times;
     std::map<int, unsigned int> first_run_times;
     std::map<int, unsigned int> waiting_times; // Track time spent in READY queue
@@ -65,7 +66,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                     process.state = READY;  //Set the process state to READY
                     ready_queue.push_back(process); //Add the process to the ready queue
                     job_list.push_back(process); //Add it to the list of processes
-                    new_arrival = true;
+                    new_arrival = true; // This is used to check if we need to preempt (new arrivals will check if they need to preempt)
 
                     execution_status += print_exec_status(current_time, process.PID, NEW, READY);
                     memory_transitions.push_back({current_time, process.PID, NEW, READY});

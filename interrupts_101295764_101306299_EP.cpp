@@ -6,7 +6,7 @@
  */
 
 #include "interrupts_101295764_101306299.hpp"
-#include<map>
+#include <map>
 
 // Sort ready queue by priority (lower priority number = higher priority)
 // We inverted this function since we used front instead of back
