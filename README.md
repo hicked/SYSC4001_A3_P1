@@ -10,7 +10,7 @@ This project simulates process scheduling algorithms for an operating system, in
 - Handles I/O and priority-based scheduling
 
 ## Assumptions
-- Priority is a separate input column (not PID-based). This is because the assignment completed using the previous instructions. They were then updated to say lower PID = higher Priority. This also just gives us more flexibility.
+- Priority is a separate input column (not PID-based). This is because the assignment completed using the previous instructions (included in repo `a3.pdf`). They were then updated to say lower PID = higher Priority. This also just gives us more flexibility.
 - Metrics are tracked during execution, and then calculated (see header) at the end of each simulation (output in `execution.txt`)
 - Ignored any context switch times
 - simulations was used to record input/output instead of input_files and output_files since it was more organized this way
