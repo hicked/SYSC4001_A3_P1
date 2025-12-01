@@ -337,7 +337,7 @@ struct Event {
     states new_state;
 };
 
-// Build consolidated memory + transition and queue report for one time tick
+// Build memory + transition and queue report for one time tick
 std::string parseEvents(unsigned int current_time,
                         const std::vector<Event>& transitions,
                         const std::vector<PCB>& job_list,
@@ -376,7 +376,7 @@ std::string parseEvents(unsigned int current_time,
     output += "| NEW | READY | WAITING | RUNNING | TERMINATED |\n";
     output += "|-----|-------|---------|---------|------------|";
 
-    // Collect PIDs for each state
+    // Get PIDs for each state
     std::vector<int> new_pids, ready_pids, waiting_pids, terminated_pids;
     int running_pid = -1;
 
@@ -507,7 +507,7 @@ inline std::string calculate_metrics(
         if (completion_times.find(process.PID) != completion_times.end() && first_run_times.find(process.PID) != first_run_times.end()) {
             unsigned int turnaround = completion_times.at(process.PID) - process.arrival_time;
             unsigned int response = first_run_times.at(process.PID) - process.arrival_time;
-            unsigned int wait = waiting_times.at(process.PID); // Use tracked waiting time
+            unsigned int wait = waiting_times.at(process.PID);
             total_turnaround += turnaround;
             total_response += response;
             total_wait += wait;

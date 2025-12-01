@@ -76,7 +76,7 @@ std::tuple<std::string, std::string> run_simulation(std::vector<PCB> list_proces
                         waiting_times[process.PID] = 0;
                     }
                 } else {
-                    // Failed to assign memory - add to job_list but keep in NEW state
+                    // Failed to assign memory: add to job_list but keep in NEW state
                     job_list.push_back(process);
                 }
             } else if (process.state == NEW && process.arrival_time < current_time) {
